@@ -16,9 +16,10 @@ interface Task {
 
 interface TaskDisplayProps {
   tasks: Task[];
+  onTaskComplete?: () => void;
 }
 
-export const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks }) => {
+export const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks, onTaskComplete }) => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case 'beginner': return 'bg-green-100 text-green-800 border-green-200';
@@ -34,6 +35,13 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks }) => {
       case 'exercise': return <PlayCircle className="h-4 w-4" />;
       case 'project': return <CheckCircle className="h-4 w-4" />;
       default: return <Star className="h-4 w-4" />;
+    }
+  };
+
+  const handleTaskStart = (taskTitle: string) => {
+    console.log(`Starting task: ${taskTitle}`);
+    if (onTaskComplete) {
+      onTaskComplete();
     }
   };
 
@@ -88,7 +96,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks }) => {
               
               <Button 
                 className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white transition-all transform hover:scale-105"
-                onClick={() => console.log(`Starting task: ${task.title}`)}
+                onClick={() => handleTaskStart(task.title)}
               >
                 Start Task
               </Button>
