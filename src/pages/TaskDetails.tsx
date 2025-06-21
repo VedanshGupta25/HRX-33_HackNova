@@ -218,8 +218,8 @@ const TaskDetails = () => {
               </Card>
             ))}
 
-            {/* Task-specific content */}
-            {taskType === 'reading' && taskContent.content.keyTakeaways && (
+            {/* Task-specific content with proper type checking */}
+            {taskType === 'reading' && 'keyTakeaways' in taskContent.content && (
               <Card>
                 <CardHeader>
                   <CardTitle>Key Takeaways</CardTitle>
@@ -237,7 +237,7 @@ const TaskDetails = () => {
               </Card>
             )}
 
-            {taskType === 'exercise' && taskContent.content.exercises && (
+            {taskType === 'exercise' && 'exercises' in taskContent.content && (
               <Card>
                 <CardHeader>
                   <CardTitle>Practice Exercises</CardTitle>
@@ -257,7 +257,7 @@ const TaskDetails = () => {
               </Card>
             )}
 
-            {taskType === 'project' && taskContent.content.deliverables && (
+            {taskType === 'project' && 'deliverables' in taskContent.content && (
               <Card>
                 <CardHeader>
                   <CardTitle>Project Deliverables</CardTitle>
