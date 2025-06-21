@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
-import { StreakDisplay } from '@/components/StreakDisplay';
-import { useStreak } from '@/hooks/useStreak';
+import { ProgressDisplay } from '@/components/ProgressDisplay';
+import { useGamification } from '@/hooks/useGamification';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, MessageSquare, UserPlus, Video } from 'lucide-react';
 
 const Collaborate = () => {
-  const { streakData } = useStreak();
+  const { userProgress, getXpForNextLevel } = useGamification();
   const [joinCode, setJoinCode] = useState('');
 
   const mockStudyGroups = [
@@ -43,10 +42,9 @@ const Collaborate = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <StreakDisplay 
-            currentStreak={streakData.currentStreak}
-            longestStreak={streakData.longestStreak}
-            totalTasksCompleted={streakData.totalTasksCompleted}
+          <ProgressDisplay 
+            userProgress={userProgress}
+            getXpForNextLevel={getXpForNextLevel}
           />
 
           <div className="text-center mb-12 animate-fade-in">

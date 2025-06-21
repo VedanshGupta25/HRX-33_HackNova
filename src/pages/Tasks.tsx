@@ -1,20 +1,22 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
 import { InputSection } from '@/components/InputSection';
 import { TaskDisplay } from '@/components/TaskDisplay';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { StreakDisplay } from '@/components/StreakDisplay';
+import { ProgressDisplay } from '@/components/ProgressDisplay';
+import { RewardNotification } from '@/components/RewardNotification';
 import { useToast } from '@/hooks/use-toast';
-import { useStreak } from '@/hooks/useStreak';
+import { useGamification } from '@/hooks/useGamification';
 import { GeminiApiService, type TaskGenerationRequest } from '@/utils/geminiApi';
 
 const Tasks = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tasks, setTasks] = useState<any[]>([]);
   const [inputType, setInputType] = useState<'concept' | 'transcript'>('concept');
+  const [showRewards, setShowRewards] = useState(false);
+  const [rewardData, setRewardData] = useState<any>(null);
   const { toast } = useToast();
-  const { streakData, completeTask } = useStreak();
+  const { userProgress, completeTask, getXpForNextLevel } = useGamification();
 
   const handleInputSubmit = async (input: string) => {
     if (!input.trim()) {
@@ -88,11 +90,29 @@ const Tasks = () => {
     }
   };
 
-  const handleTaskComplete = () => {
-    completeTask();
+  const handleTaskComplete = (taskTitle: string) => {
+    const result = completeTask('learning');
+    
+    // Show reward notification
+    setRewardData({
+      ...result,
+      newLevel: userProgress.level
+    });
+    setShowRewards(true);
+    
+    let toastMessage = `Great job! You earned ${result.reward.points} points, ${result.reward.xp} XP, and ${result.reward.coins} coins!`;
+    
+    if (result.levelUp) {
+      toastMessage += ` 🎉 Level up to ${userProgress.level + 1}!`;
+    }
+    
+    if (result.unlockedAchievements.length > 0) {
+      toastMessage += ` 🏆 ${result.unlockedAchievements.length} new achievement${result.unlockedAchievements.length > 1 ? 's' : ''} unlocked!`;
+    }
+
     toast({
       title: "Task Completed!",
-      description: "Great job! Your learning streak has been updated.",
+      description: toastMessage,
     });
   };
 
@@ -102,10 +122,9 @@ const Tasks = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <StreakDisplay 
-            currentStreak={streakData.currentStreak}
-            longestStreak={streakData.longestStreak}
-            totalTasksCompleted={streakData.totalTasksCompleted}
+          <ProgressDisplay 
+            userProgress={userProgress}
+            getXpForNextLevel={getXpForNextLevel}
           />
 
           <div className="text-center mb-12 animate-fade-in">
@@ -113,7 +132,7 @@ const Tasks = () => {
               Learning Tasks
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Generate personalized learning tasks for any concept or transcript
+              Generate personalized learning tasks and earn rewards for your progress
             </p>
           </div>
 
@@ -131,6 +150,16 @@ const Tasks = () => {
           )}
         </div>
       </main>
+
+      {showRewards && rewardData && (
+        <RewardNotification
+          reward={rewardData.reward}
+          unlockedAchievements={rewardData.unlockedAchievements}
+          levelUp={rewardData.levelUp}
+          newLevel={rewardData.newLevel}
+          onClose={() => setShowRewards(false)}
+        />
+      )}
     </div>
   );
 };

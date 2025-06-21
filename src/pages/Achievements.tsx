@@ -1,71 +1,22 @@
 
 import React from 'react';
 import { Header } from '@/components/Header';
-import { StreakDisplay } from '@/components/StreakDisplay';
-import { useStreak } from '@/hooks/useStreak';
+import { ProgressDisplay } from '@/components/ProgressDisplay';
+import { useGamification } from '@/hooks/useGamification';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Star, Target, Flame, Book, Users } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Trophy, Star, Target, Flame, Book, Users, Coins, Zap } from 'lucide-react';
 
 const Achievements = () => {
-  const { streakData } = useStreak();
+  const { userProgress, achievements, getXpForNextLevel } = useGamification();
 
-  const achievements = [
-    {
-      id: 1,
-      title: "First Steps",
-      description: "Complete your first learning task",
-      icon: Target,
-      unlocked: streakData.totalTasksCompleted > 0,
-      progress: streakData.totalTasksCompleted > 0 ? 100 : 0,
-      color: "text-green-500"
-    },
-    {
-      id: 2,
-      title: "On Fire",
-      description: "Maintain a 3-day learning streak",
-      icon: Flame,
-      unlocked: streakData.currentStreak >= 3,
-      progress: Math.min((streakData.currentStreak / 3) * 100, 100),
-      color: "text-orange-500"
-    },
-    {
-      id: 3,
-      title: "Dedicated Learner",
-      description: "Complete 10 learning tasks",
-      icon: Book,
-      unlocked: streakData.totalTasksCompleted >= 10,
-      progress: Math.min((streakData.totalTasksCompleted / 10) * 100, 100),
-      color: "text-blue-500"
-    },
-    {
-      id: 4,
-      title: "Streak Master",
-      description: "Achieve a 7-day learning streak",
-      icon: Star,
-      unlocked: streakData.longestStreak >= 7,
-      progress: Math.min((streakData.longestStreak / 7) * 100, 100),
-      color: "text-yellow-500"
-    },
-    {
-      id: 5,
-      title: "Knowledge Seeker",
-      description: "Complete 25 learning tasks",
-      icon: Trophy,
-      unlocked: streakData.totalTasksCompleted >= 25,
-      progress: Math.min((streakData.totalTasksCompleted / 25) * 100, 100),
-      color: "text-purple-500"
-    },
-    {
-      id: 6,
-      title: "Team Player",
-      description: "Join a study group",
-      icon: Users,
-      unlocked: false,
-      progress: 0,
-      color: "text-indigo-500"
-    }
-  ];
+  const getIconComponent = (iconName: string) => {
+    const icons: { [key: string]: any } = {
+      Target, Flame, Book, Trophy, Star, Users, Coins, Zap
+    };
+    return icons[iconName] || Star;
+  };
 
   const unlockedCount = achievements.filter(a => a.unlocked).length;
 
@@ -75,18 +26,17 @@ const Achievements = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <StreakDisplay 
-            currentStreak={streakData.currentStreak}
-            longestStreak={streakData.longestStreak}
-            totalTasksCompleted={streakData.totalTasksCompleted}
+          <ProgressDisplay 
+            userProgress={userProgress}
+            getXpForNextLevel={getXpForNextLevel}
           />
 
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl font-bold text-gray-800 mb-4">
-              Achievements
+              Achievements & Progress
             </h1>
             <p className="text-xl text-gray-600 mb-4 max-w-2xl mx-auto">
-              Track your learning progress and unlock rewards
+              Track your learning journey and unlock exclusive rewards
             </p>
             <Badge variant="outline" className="text-lg px-4 py-2">
               {unlockedCount} of {achievements.length} unlocked
@@ -95,13 +45,15 @@ const Achievements = () => {
 
           <div className="grid gap-6 md:grid-cols-2">
             {achievements.map((achievement) => {
-              const IconComponent = achievement.icon;
+              const IconComponent = getIconComponent(achievement.icon);
+              const progressPercentage = (achievement.progress / achievement.maxProgress) * 100;
+              
               return (
                 <Card 
                   key={achievement.id} 
                   className={`bg-white/80 backdrop-blur-sm border-0 shadow-lg transition-all duration-300 ${
                     achievement.unlocked 
-                      ? 'hover:shadow-xl transform hover:-translate-y-1' 
+                      ? 'hover:shadow-xl transform hover:-translate-y-1 ring-2 ring-green-200' 
                       : 'opacity-75'
                   }`}
                 >
@@ -110,13 +62,13 @@ const Achievements = () => {
                       <div className="flex items-center gap-3">
                         <div className={`p-3 rounded-full ${
                           achievement.unlocked 
-                            ? 'bg-gradient-to-r from-blue-100 to-green-100' 
+                            ? 'bg-gradient-to-r from-green-100 to-emerald-100' 
                             : 'bg-gray-100'
                         }`}>
                           <IconComponent 
                             className={`h-6 w-6 ${
                               achievement.unlocked 
-                                ? achievement.color 
+                                ? 'text-green-600' 
                                 : 'text-gray-400'
                             }`} 
                           />
@@ -131,7 +83,7 @@ const Achievements = () => {
                           </CardTitle>
                           {achievement.unlocked && (
                             <Badge className="mt-1 bg-green-100 text-green-800 border-green-200">
-                              Unlocked
+                              ✓ Unlocked
                             </Badge>
                           )}
                         </div>
@@ -145,18 +97,38 @@ const Achievements = () => {
                     <CardDescription className="mb-3">
                       {achievement.description}
                     </CardDescription>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          achievement.unlocked 
-                            ? 'bg-gradient-to-r from-blue-500 to-green-500' 
-                            : 'bg-gray-400'
-                        }`}
-                        style={{ width: `${achievement.progress}%` }}
-                      ></div>
+                    
+                    {/* Progress Bar */}
+                    <div className="mb-3">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Progress</span>
+                        <span className="text-gray-600">
+                          {achievement.progress}/{achievement.maxProgress}
+                        </span>
+                      </div>
+                      <Progress 
+                        value={progressPercentage} 
+                        className={`h-2 ${achievement.unlocked ? 'bg-green-100' : 'bg-gray-200'}`}
+                      />
                     </div>
-                    <div className="text-sm text-gray-600 mt-2">
-                      Progress: {Math.round(achievement.progress)}%
+
+                    {/* Rewards */}
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="p-2 bg-blue-50 rounded text-xs">
+                        <Star className="h-3 w-3 text-blue-500 mx-auto mb-1" />
+                        <div className="font-semibold text-blue-700">+{achievement.reward.points}</div>
+                        <div className="text-blue-600">Points</div>
+                      </div>
+                      <div className="p-2 bg-purple-50 rounded text-xs">
+                        <Zap className="h-3 w-3 text-purple-500 mx-auto mb-1" />
+                        <div className="font-semibold text-purple-700">+{achievement.reward.xp}</div>
+                        <div className="text-purple-600">XP</div>
+                      </div>
+                      <div className="p-2 bg-yellow-50 rounded text-xs">
+                        <Coins className="h-3 w-3 text-yellow-500 mx-auto mb-1" />
+                        <div className="font-semibold text-yellow-700">+{achievement.reward.coins}</div>
+                        <div className="text-yellow-600">Coins</div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
