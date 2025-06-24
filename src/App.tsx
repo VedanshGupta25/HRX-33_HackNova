@@ -9,6 +9,8 @@ import Tasks from "./pages/Tasks";
 import TaskDetails from "./pages/TaskDetails";
 import Collaborate from "./pages/Collaborate";
 import Achievements from "./pages/Achievements";
+import HelpSupport from "./pages/HelpSupport";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Brain, Users, Trophy } from 'lucide-react';
+import { Brain, Users, Trophy, HelpCircle, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export const Header = () => {
@@ -52,6 +52,28 @@ export const Header = () => {
             >
               <Trophy className="h-4 w-4" />
               <span>Achievements</span>
+            </Link>
+            <Link 
+              to="/help-support" 
+              className={`flex items-center space-x-1 transition-colors ${
+                isActive('/help-support') 
+                  ? 'text-blue-600' 
+                  : 'text-gray-600 hover:text-blue-600'
+              }`}
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span>Help</span>
+            </Link>
+            <Link 
+              to="/profile" 
+              className={`flex items-center space-x-1 transition-colors ${
+                isActive('/profile') 
+                  ? 'text-blue-600' 
+                  : 'text-gray-600 hover:text-blue-600'
+              }`}
+            >
+              <User className="h-4 w-4" />
+              <span>Profile</span>
             </Link>
           </nav>
           
