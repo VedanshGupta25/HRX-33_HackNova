@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
 import { InputSection } from '@/components/InputSection';
@@ -5,6 +6,7 @@ import { TaskDisplay } from '@/components/TaskDisplay';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ProgressDisplay } from '@/components/ProgressDisplay';
 import { RewardNotification } from '@/components/RewardNotification';
+import { VoiceCommands } from '@/components/VoiceCommands';
 import { useToast } from '@/hooks/use-toast';
 import { useGamification } from '@/hooks/useGamification';
 import { GeminiApiService, type TaskGenerationRequest } from '@/utils/geminiApi';
@@ -13,6 +15,7 @@ const Tasks = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tasks, setTasks] = useState<any[]>([]);
   const [inputType, setInputType] = useState<'concept' | 'transcript'>('concept');
+  const [currentInput, setCurrentInput] = useState('');
   const [showRewards, setShowRewards] = useState(false);
   const [rewardData, setRewardData] = useState<any>(null);
   const { toast } = useToast();
@@ -28,6 +31,11 @@ const Tasks = () => {
       return;
     }
 
+    setCurrentInput(input);
+    await generateTasks(input);
+  };
+
+  const generateTasks = async (input: string) => {
     setIsLoading(true);
     console.log('Processing input:', input, 'Type:', inputType);
     
@@ -116,6 +124,51 @@ const Tasks = () => {
     });
   };
 
+  const handleVoiceCommand = (command: string, text?: string) => {
+    switch (command) {
+      case 'generate':
+        if (currentInput.trim()) {
+          generateTasks(currentInput);
+        } else {
+          toast({
+            title: "No Input Available",
+            description: "Please enter a concept or transcript first.",
+            variant: "destructive"
+          });
+        }
+        break;
+      case 'start':
+        if (tasks.length > 0) {
+          handleTaskComplete(tasks[0].title);
+        } else {
+          toast({
+            title: "No Tasks Available",
+            description: "Generate tasks first to start learning.",
+            variant: "destructive"
+          });
+        }
+        break;
+      case 'showDetails':
+        // This would be handled by the TaskDisplay component
+        toast({
+          title: "Showing Details",
+          description: "Task details are now visible.",
+        });
+        break;
+      case 'hideDetails':
+        // This would be handled by the TaskDisplay component
+        toast({
+          title: "Hiding Details",
+          description: "Task details are now hidden.",
+        });
+        break;
+    }
+  };
+
+  const handleVoiceInput = (text: string) => {
+    setCurrentInput(text);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Header />
@@ -141,6 +194,7 @@ const Tasks = () => {
             inputType={inputType}
             onInputTypeChange={setInputType}
             isLoading={isLoading}
+            initialValue={currentInput}
           />
 
           {isLoading && <LoadingSpinner />}
@@ -150,6 +204,11 @@ const Tasks = () => {
           )}
         </div>
       </main>
+
+      <VoiceCommands 
+        onVoiceCommand={handleVoiceCommand}
+        onVoiceInput={handleVoiceInput}
+      />
 
       {showRewards && rewardData && (
         <RewardNotification
