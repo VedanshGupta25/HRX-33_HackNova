@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
 import { ProgressDisplay } from '@/components/ProgressDisplay';
@@ -5,34 +6,70 @@ import { useGamification } from '@/hooks/useGamification';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Users, MessageSquare, UserPlus, Video } from 'lucide-react';
+import { MessageCircle, Video, Users, ExternalLink } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Collaborate = () => {
-  const { userProgress, getXpForNextLevel } = useGamification();
-  const [joinCode, setJoinCode] = useState('');
+  const { userProgress, getXpForNextLevel, joinCollaborativeSession } = useGamification();
+  const { toast } = useToast();
+  const [whatsappLink, setWhatsappLink] = useState('');
+  const [discordLink, setDiscordLink] = useState('');
+  const [googlemeetLink, setGooglemeetLink] = useState('');
 
-  const mockStudyGroups = [
+  const handlePlatformRedirect = (platform: string, link: string) => {
+    if (!link.trim()) {
+      toast({
+        title: `${platform} Link Required`,
+        description: `Please enter a ${platform} link first.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Track collaborative session join
+    const result = joinCollaborativeSession();
+    
+    if (result.unlockedAchievements.length > 0) {
+      toast({
+        title: "Achievement Unlocked! 🏆",
+        description: `You unlocked ${result.unlockedAchievements.length} new achievement${result.unlockedAchievements.length > 1 ? 's' : ''}!`,
+      });
+    }
+    
+    window.open(link, '_blank');
+    toast({
+      title: `Redirecting to ${platform}`,
+      description: `Opening ${platform} in a new tab...`,
+    });
+  };
+
+  const platforms = [
     {
-      id: 1,
-      name: "JavaScript Fundamentals",
-      members: 12,
-      activity: "Active now",
-      description: "Learning the basics of JavaScript together"
+      name: 'WhatsApp',
+      icon: MessageCircle,
+      color: 'from-green-500 to-green-600',
+      hoverColor: 'hover:from-green-600 hover:to-green-700',
+      link: whatsappLink,
+      setLink: setWhatsappLink,
+      placeholder: 'Enter WhatsApp group/chat link'
     },
     {
-      id: 2,
-      name: "React Mastery",
-      members: 8,
-      activity: "2 hours ago",
-      description: "Building modern web applications with React"
+      name: 'Google Meet',
+      icon: Video,
+      color: 'from-blue-500 to-blue-600',
+      hoverColor: 'hover:from-blue-600 hover:to-blue-700',
+      link: googlemeetLink,
+      setLink: setGooglemeetLink,
+      placeholder: 'Enter Google Meet link'
     },
     {
-      id: 3,
-      name: "Data Science Study Group",
-      members: 15,
-      activity: "1 day ago",
-      description: "Exploring data analysis and machine learning"
+      name: 'Discord',
+      icon: Users,
+      color: 'from-purple-500 to-purple-600',
+      hoverColor: 'hover:from-purple-600 hover:to-purple-700',
+      link: discordLink,
+      setLink: setDiscordLink,
+      placeholder: 'Enter Discord server/channel link'
     }
   ];
 
@@ -52,86 +89,70 @@ const Collaborate = () => {
               Collaborative Learning
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Join study groups and learn together with peers
+              Connect with study partners through your favorite platforms
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 mb-8">
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <UserPlus className="h-5 w-5 text-blue-600" />
-                  Create Study Group
-                </CardTitle>
-                <CardDescription>
-                  Start a new study group and invite friends
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
-                  Create Group
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-green-600" />
-                  Join Study Group
-                </CardTitle>
-                <CardDescription>
-                  Enter a group code to join an existing study group
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Input
-                  placeholder="Enter group code"
-                  value={joinCode}
-                  onChange={(e) => setJoinCode(e.target.value)}
-                />
-                <Button className="w-full" variant="outline">
-                  Join Group
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+            {platforms.map((platform) => {
+              const IconComponent = platform.icon;
+              
+              return (
+                <Card key={platform.name} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardHeader className={`bg-gradient-to-r ${platform.color} text-white rounded-t-lg`}>
+                    <CardTitle className="flex items-center gap-2 text-white">
+                      <IconComponent className="h-5 w-5" />
+                      {platform.name}
+                    </CardTitle>
+                    <CardDescription className="text-white/90">
+                      Connect via {platform.name}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <Input
+                      placeholder={platform.placeholder}
+                      value={platform.link}
+                      onChange={(e) => platform.setLink(e.target.value)}
+                      className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                    <Button 
+                      onClick={() => handlePlatformRedirect(platform.name, platform.link)}
+                      className={`w-full bg-gradient-to-r ${platform.color} ${platform.hoverColor} text-white transition-all duration-300 transform hover:scale-105`}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Join {platform.name}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="mt-8 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
             <CardHeader>
-              <CardTitle>Active Study Groups</CardTitle>
+              <CardTitle>Quick Start Tips</CardTitle>
               <CardDescription>
-                Discover and join public study groups
+                How to get the most out of collaborative learning
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockStudyGroups.map((group) => (
-                  <div key={group.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{group.name}</h3>
-                        <p className="text-gray-600 mb-2">{group.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {group.members} members
-                          </span>
-                          <Badge variant="outline">{group.activity}</Badge>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <MessageSquare className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Video className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm">Join</Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-semibold text-blue-800 mb-2">WhatsApp Groups</h3>
+                  <p className="text-blue-600 text-sm">Perfect for quick discussions, sharing resources, and staying connected with study partners.</p>
+                </div>
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <h3 className="font-semibold text-green-800 mb-2">Google Meet</h3>
+                  <p className="text-green-600 text-sm">Ideal for virtual study sessions, screen sharing, and collaborative problem-solving.</p>
+                </div>
+                <div className="p-4 bg-purple-50 rounded-lg">
+                  <h3 className="font-semibold text-purple-800 mb-2">Discord</h3>
+                  <p className="text-purple-600 text-sm">Great for community building, voice channels, and organized study groups with different topics.</p>
+                </div>
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <h3 className="font-semibold text-orange-800 mb-2">Pro Tips</h3>
+                  <p className="text-orange-600 text-sm">Set regular study times, share your progress, and celebrate achievements together!</p>
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -11,13 +11,16 @@ interface UserProgress {
   currentStreak: number;
   longestStreak: number;
   lastActivityDate: string | null;
+  voiceCommandsUsed: number;
+  profileCompleted: boolean;
+  collaborativeSessionsJoined: number;
 }
 
 interface Achievement {
   id: string;
   title: string;
   description: string;
-  type: 'streak' | 'points' | 'skills' | 'tasks' | 'special';
+  type: 'streak' | 'points' | 'skills' | 'tasks' | 'voice' | 'profile' | 'social' | 'special';
   icon: string;
   unlocked: boolean;
   progress: number;
@@ -41,7 +44,10 @@ export const useGamification = () => {
     skillsUnlocked: [],
     currentStreak: 0,
     longestStreak: 0,
-    lastActivityDate: null
+    lastActivityDate: null,
+    voiceCommandsUsed: 0,
+    profileCompleted: false,
+    collaborativeSessionsJoined: 0
   });
 
   const [achievements, setAchievements] = useState<Achievement[]>([
@@ -57,6 +63,39 @@ export const useGamification = () => {
       reward: { points: 50, xp: 25, coins: 10 }
     },
     {
+      id: 'voice_pioneer',
+      title: 'Voice Pioneer',
+      description: 'Use voice commands 5 times',
+      type: 'voice',
+      icon: 'Mic',
+      unlocked: false,
+      progress: 0,
+      maxProgress: 5,
+      reward: { points: 100, xp: 50, coins: 25 }
+    },
+    {
+      id: 'profile_master',
+      title: 'Profile Master',
+      description: 'Complete your profile with all details',
+      type: 'profile',
+      icon: 'User',
+      unlocked: false,
+      progress: 0,
+      maxProgress: 1,
+      reward: { points: 75, xp: 40, coins: 20 }
+    },
+    {
+      id: 'streak_starter',
+      title: 'Streak Starter',
+      description: 'Maintain a 3-day learning streak',
+      type: 'streak',
+      icon: 'Flame',
+      unlocked: false,
+      progress: 0,
+      maxProgress: 3,
+      reward: { points: 100, xp: 60, coins: 30 }
+    },
+    {
       id: 'streak_master',
       title: 'Streak Master',
       description: 'Maintain a 7-day learning streak',
@@ -68,6 +107,17 @@ export const useGamification = () => {
       reward: { points: 200, xp: 100, coins: 50 }
     },
     {
+      id: 'task_warrior',
+      title: 'Task Warrior',
+      description: 'Complete 10 learning tasks',
+      type: 'tasks',
+      icon: 'Book',
+      unlocked: false,
+      progress: 0,
+      maxProgress: 10,
+      reward: { points: 250, xp: 150, coins: 75 }
+    },
+    {
       id: 'dedicated_learner',
       title: 'Dedicated Learner',
       description: 'Complete 25 learning tasks',
@@ -77,6 +127,28 @@ export const useGamification = () => {
       progress: 0,
       maxProgress: 25,
       reward: { points: 500, xp: 250, coins: 100 }
+    },
+    {
+      id: 'social_butterfly',
+      title: 'Social Butterfly',
+      description: 'Join 3 collaborative learning sessions',
+      type: 'social',
+      icon: 'Users',
+      unlocked: false,
+      progress: 0,
+      maxProgress: 3,
+      reward: { points: 150, xp: 75, coins: 40 }
+    },
+    {
+      id: 'voice_master',
+      title: 'Voice Master',
+      description: 'Use voice commands 25 times',
+      type: 'voice',
+      icon: 'Mic',
+      unlocked: false,
+      progress: 0,
+      maxProgress: 25,
+      reward: { points: 300, xp: 200, coins: 100 }
     },
     {
       id: 'knowledge_seeker',
@@ -99,6 +171,17 @@ export const useGamification = () => {
       progress: 0,
       maxProgress: 30,
       reward: { points: 1000, xp: 500, coins: 300 }
+    },
+    {
+      id: 'century_club',
+      title: 'Century Club',
+      description: 'Complete 100 learning tasks',
+      type: 'tasks',
+      icon: 'Trophy',
+      unlocked: false,
+      progress: 0,
+      maxProgress: 100,
+      reward: { points: 2000, xp: 1000, coins: 500 }
     }
   ]);
 
@@ -143,12 +226,23 @@ export const useGamification = () => {
             progress = newProgress.totalTasksCompleted;
             break;
           case 'streak':
-            progress = achievement.id === 'consistency_champion' 
-              ? newProgress.longestStreak 
-              : newProgress.currentStreak;
+            if (achievement.id === 'consistency_champion') {
+              progress = newProgress.longestStreak;
+            } else {
+              progress = newProgress.currentStreak;
+            }
             break;
           case 'points':
             progress = newProgress.level;
+            break;
+          case 'voice':
+            progress = newProgress.voiceCommandsUsed;
+            break;
+          case 'profile':
+            progress = newProgress.profileCompleted ? 1 : 0;
+            break;
+          case 'social':
+            progress = newProgress.collaborativeSessionsJoined;
             break;
         }
         
@@ -240,6 +334,45 @@ export const useGamification = () => {
     };
   };
 
+  const useVoiceCommand = () => {
+    const newProgress = {
+      ...userProgress,
+      voiceCommandsUsed: userProgress.voiceCommandsUsed + 1
+    };
+    
+    setUserProgress(newProgress);
+    const unlockedAchievements = checkAndUnlockAchievements(newProgress);
+    saveData(newProgress, achievements);
+    
+    return { unlockedAchievements };
+  };
+
+  const updateProfileStatus = (completed: boolean) => {
+    const newProgress = {
+      ...userProgress,
+      profileCompleted: completed
+    };
+    
+    setUserProgress(newProgress);
+    const unlockedAchievements = checkAndUnlockAchievements(newProgress);
+    saveData(newProgress, achievements);
+    
+    return { unlockedAchievements };
+  };
+
+  const joinCollaborativeSession = () => {
+    const newProgress = {
+      ...userProgress,
+      collaborativeSessionsJoined: userProgress.collaborativeSessionsJoined + 1
+    };
+    
+    setUserProgress(newProgress);
+    const unlockedAchievements = checkAndUnlockAchievements(newProgress);
+    saveData(newProgress, achievements);
+    
+    return { unlockedAchievements };
+  };
+
   const checkStreakStatus = () => {
     if (userProgress.lastActivityDate) {
       const lastDate = new Date(userProgress.lastActivityDate);
@@ -265,6 +398,9 @@ export const useGamification = () => {
     userProgress,
     achievements,
     completeTask,
+    useVoiceCommand,
+    updateProfileStatus,
+    joinCollaborativeSession,
     getXpForNextLevel,
     LEVEL_THRESHOLDS
   };

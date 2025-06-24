@@ -19,7 +19,7 @@ const Tasks = () => {
   const [showRewards, setShowRewards] = useState(false);
   const [rewardData, setRewardData] = useState<any>(null);
   const { toast } = useToast();
-  const { userProgress, completeTask, getXpForNextLevel } = useGamification();
+  const { userProgress, completeTask, useVoiceCommand, getXpForNextLevel } = useGamification();
 
   const handleInputSubmit = async (input: string) => {
     if (!input.trim()) {
@@ -53,7 +53,7 @@ const Tasks = () => {
       setTasks(generatedTasks);
       
       toast({
-        title: "Tasks Generated!",
+        title: "Tasks Generated! 🎯",
         description: `Generated ${generatedTasks.length} personalized learning tasks using AI.`,
       });
     } catch (error) {
@@ -119,12 +119,25 @@ const Tasks = () => {
     }
 
     toast({
-      title: "Task Completed!",
+      title: "Task Completed! 🎯",
       description: toastMessage,
     });
   };
 
   const handleVoiceCommand = (command: string, text?: string) => {
+    // Track voice command usage
+    const voiceResult = useVoiceCommand();
+    
+    if (voiceResult.unlockedAchievements.length > 0) {
+      setRewardData({
+        reward: { points: 0, xp: 0, coins: 0 },
+        unlockedAchievements: voiceResult.unlockedAchievements,
+        levelUp: false,
+        newLevel: userProgress.level
+      });
+      setShowRewards(true);
+    }
+
     switch (command) {
       case 'generate':
         if (currentInput.trim()) {
@@ -151,14 +164,14 @@ const Tasks = () => {
       case 'showDetails':
         // This would be handled by the TaskDisplay component
         toast({
-          title: "Showing Details",
+          title: "Showing Details 👁️",
           description: "Task details are now visible.",
         });
         break;
       case 'hideDetails':
         // This would be handled by the TaskDisplay component
         toast({
-          title: "Hiding Details",
+          title: "Hiding Details 🙈",
           description: "Task details are now hidden.",
         });
         break;
@@ -167,6 +180,8 @@ const Tasks = () => {
 
   const handleVoiceInput = (text: string) => {
     setCurrentInput(text);
+    // Track voice command usage for voice input as well
+    useVoiceCommand();
   };
 
   return (
@@ -194,6 +209,8 @@ const Tasks = () => {
             inputType={inputType}
             onInputTypeChange={setInputType}
             isLoading={isLoading}
+            currentInput={currentInput}
+            onInputChange={setCurrentInput}
           />
 
           {isLoading && <LoadingSpinner />}

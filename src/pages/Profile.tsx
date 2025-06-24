@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,15 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { User, Star, Settings, Save } from 'lucide-react';
+import { User, Star, Settings, Save, Camera, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('');
   const [background, setBackground] = useState('');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState('');
 
   const interests = [
     'Web Development', 'Mobile Apps', 'Machine Learning',
@@ -39,13 +41,63 @@ const Profile = () => {
     );
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarUrl(e.target?.result as string);
+        toast({
+          title: "Avatar Updated! 📸",
+          description: "Your profile picture has been changed.",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSaveProfile = () => {
-    // Here you would typically save to a backend or local storage
+    // Save to localStorage for persistence
+    const profileData = {
+      name,
+      experienceLevel,
+      background,
+      selectedInterests,
+      avatarUrl
+    };
+    localStorage.setItem('userProfile', JSON.stringify(profileData));
+    
     toast({
       title: "Profile Saved! 🎉",
       description: "Your preferences have been updated successfully.",
     });
   };
+
+  // Load profile data on component mount
+  React.useEffect(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      const profile = JSON.parse(savedProfile);
+      setName(profile.name || '');
+      setExperienceLevel(profile.experienceLevel || '');
+      setBackground(profile.background || '');
+      setSelectedInterests(profile.selectedInterests || []);
+      setAvatarUrl(profile.avatarUrl || '');
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -63,14 +115,32 @@ const Profile = () => {
             <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
               <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
                 <div className="flex justify-center mb-4">
-                  <Avatar className="w-24 h-24 border-4 border-white/30">
-                    <AvatarImage src="" />
-                    <AvatarFallback className="bg-white/20 text-white text-2xl">
-                      <User className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative group">
+                    <Avatar className="w-24 h-24 border-4 border-white/30 cursor-pointer" onClick={handleAvatarClick}>
+                      <AvatarImage src={avatarUrl} />
+                      <AvatarFallback className="bg-white/20 text-white text-2xl">
+                        <User className="h-8 w-8" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div 
+                      className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      onClick={handleAvatarClick}
+                    >
+                      <Camera className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
                 </div>
                 <CardTitle className="text-white">Profile Avatar</CardTitle>
+                <CardDescription className="text-white/90">
+                  Click to change your avatar
+                </CardDescription>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
               </CardHeader>
               <CardContent className="space-y-4 p-6">
                 <div>
@@ -96,6 +166,15 @@ const Profile = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <Button
+                  onClick={handleAvatarClick}
+                  variant="outline"
+                  className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload New Avatar
+                </Button>
               </CardContent>
             </Card>
 
