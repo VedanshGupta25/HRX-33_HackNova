@@ -17,6 +17,7 @@ export interface Task {
   badgeUnlock?: string;
   streakBonus?: string;
   unlocksNext?: boolean;
+  rating?: number;
 }
 
 const GEMINI_API_KEY = 'AIzaSyAE5FLtFYjCFLHonUVoHY9htSY5AucS48U';
@@ -29,34 +30,47 @@ export class GeminiApiService {
     const prompt = `
 You are an expert AI instructional designer for online learning platforms.
 
-For the given learning topic, ALWAYS generate exactly:
+For the given learning topic, ALWAYS generate exactly 9 tasks (3 for each difficulty level):
 
-✅ 1 Reading task (label: Reading)  
-✅ 1 Practical Exercise task (label: Exercise)  
-✅ 1 Project-based task (label: Project)  
+BEGINNER LEVEL (3 tasks):
+✅ 1 Reading task (type: "Reading", difficulty: "Beginner")
+✅ 1 Exercise task (type: "Exercise", difficulty: "Beginner") 
+✅ 1 Project task (type: "Project", difficulty: "Beginner")
+
+INTERMEDIATE LEVEL (3 tasks):
+✅ 1 Reading task (type: "Reading", difficulty: "Intermediate")
+✅ 1 Exercise task (type: "Exercise", difficulty: "Intermediate")
+✅ 1 Project task (type: "Project", difficulty: "Intermediate")
+
+ADVANCED LEVEL (3 tasks):
+✅ 1 Reading task (type: "Reading", difficulty: "Advanced")
+✅ 1 Exercise task (type: "Exercise", difficulty: "Advanced")
+✅ 1 Project task (type: "Project", difficulty: "Advanced")
 
 For each task, provide:
+- "title": string (engaging and specific)
+- "description": string (2-3 sentences explaining what the learner will do)
+- "difficulty": "Beginner" | "Intermediate" | "Advanced"
+- "estimatedTime": string (realistic time estimate like "30 minutes", "2 hours", "1-2 days")
+- "type": "Reading" | "Exercise" | "Project"
+- "xpReward": number (Beginner: 25-50, Intermediate: 75-100, Advanced: 125-200)
+- "rating": number (random between 3.5 and 5.0 for demo purposes)
 
-- "title": string  
-- "description": string (2-3 sentences)  
-- "difficulty": "Beginner" | "Intermediate" | "Advanced"  
-- "estimatedTime": string (example: "30 minutes" or "60-90 minutes")  
-- "type": "Reading" | "Exercise" | "Project"  
-- "xpReward": number (example: 50, 75, 100)  
-- "badgeUnlock": string (optional, can be null)  
-- "streakBonus": string (optional, can be null)  
-- "unlocksNext": true | false  
+**Learning Topic:** ${request.input}
+**User Skill Level:** ${request.skillLevel}
+**User Interests:** ${request.userPreferences.join(', ')}
 
-**Learning Topic:** ${request.input}  
-**User Skill Level:** ${request.skillLevel}  
-**User Interests:** ${request.userPreferences.join(', ')}  
+**Difficulty Guidelines:**
+- Beginner: Basic concepts, guided practice, simple implementations
+- Intermediate: Applied knowledge, problem-solving, moderate complexity
+- Advanced: Deep analysis, optimization, professional-level projects
 
-**Style guide:**  
-Reading → explore core ideas through articles or papers  
-Exercise → short practice using datasets, tools, quizzes  
-Project → larger activity to apply concepts in real-world  
+**Type Guidelines:**
+- Reading: Articles, documentation, research papers, tutorials
+- Exercise: Coding challenges, quizzes, practice problems, hands-on activities  
+- Project: Complete applications, research studies, comprehensive implementations
 
-ALWAYS return only a valid JSON array of exactly 3 task objects — [ Reading, Exercise, Project ]  
+ALWAYS return only a valid JSON array of exactly 9 task objects.
 DO NOT include any extra text or commentary.
     `;
 
@@ -105,7 +119,8 @@ DO NOT include any extra text or commentary.
         difficulty: task.difficulty,
         estimatedTime: task.estimatedTime,
         type: task.type,
-        xpReward: task.xpReward,
+        xpReward: task.xpReward || (task.difficulty === 'Beginner' ? 25 : task.difficulty === 'Intermediate' ? 75 : 125),
+        rating: task.rating || (3.5 + Math.random() * 1.5),
         badgeUnlock: task.badgeUnlock,
         streakBonus: task.streakBonus,
         unlocksNext: task.unlocksNext
