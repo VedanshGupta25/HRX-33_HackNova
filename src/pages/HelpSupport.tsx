@@ -95,34 +95,36 @@ const HelpSupport = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4">Help & Support</h1>
-            <p className="text-purple-200 text-lg">Everything you need to get started and make the most of your learning journey</p>
+          <div className="text-center mb-12 animate-fade-in">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">Help & Support</h1>
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Everything you need to get started and make the most of your learning journey
+            </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-12">
             {/* Quick Start Guide */}
-            <Card className="bg-purple-800/30 border-purple-600/30 backdrop-blur-sm">
-              <CardHeader>
+            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <BookOpen className="h-5 w-5 text-cyan-400" />
-                  <CardTitle className="text-white">Quick Start Guide</CardTitle>
+                  <BookOpen className="h-5 w-5" />
+                  <CardTitle>Quick Start Guide</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 p-6">
                 {quickStartSteps.map((step, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-purple-700/20 hover:bg-purple-700/30 transition-colors">
-                    <div className="bg-cyan-500 rounded-lg p-2 flex-shrink-0">
+                  <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-blue-50/50 hover:bg-blue-50 transition-colors border border-blue-100">
+                    <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-2 flex-shrink-0">
                       <step.icon className="h-4 w-4 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white mb-1">{step.title}</h3>
-                      <p className="text-purple-200 text-sm">{step.description}</p>
+                      <h3 className="font-semibold text-gray-800 mb-1">{step.title}</h3>
+                      <p className="text-gray-600 text-sm">{step.description}</p>
                     </div>
                   </div>
                 ))}
@@ -130,19 +132,19 @@ const HelpSupport = () => {
             </Card>
 
             {/* Platform Features */}
-            <Card className="bg-purple-800/30 border-purple-600/30 backdrop-blur-sm">
-              <CardHeader>
+            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <Star className="h-5 w-5 text-cyan-400" />
-                  <CardTitle className="text-white">Platform Features</CardTitle>
+                  <Star className="h-5 w-5" />
+                  <CardTitle>Platform Features</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="space-y-3">
                   {platformFeatures.map((feature, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-purple-200 text-sm">{feature}</p>
+                    <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-green-50/50 transition-colors">
+                      <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-green-600 rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-gray-700 text-sm">{feature}</p>
                     </div>
                   ))}
                 </div>
@@ -151,23 +153,23 @@ const HelpSupport = () => {
           </div>
 
           {/* FAQ Section */}
-          <Card className="bg-purple-800/30 border-purple-600/30 backdrop-blur-sm">
-            <CardHeader>
+          <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
               <div className="flex items-center gap-2 mb-4">
-                <MessageSquare className="h-5 w-5 text-cyan-400" />
-                <CardTitle className="text-white">Frequently Asked Questions</CardTitle>
+                <MessageSquare className="h-5 w-5" />
+                <CardTitle>Frequently Asked Questions</CardTitle>
               </div>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/70" />
                 <Input
                   placeholder="Search FAQs..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-purple-700/30 border-purple-600/50 text-white placeholder:text-purple-300"
+                  className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70"
                 />
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-6">
               {filteredFAQs.map((faq) => (
                 <Collapsible 
                   key={faq.id}
@@ -177,19 +179,19 @@ const HelpSupport = () => {
                   <CollapsibleTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-between p-4 h-auto text-left hover:bg-purple-700/20 text-white"
+                      className="w-full justify-between p-4 h-auto text-left hover:bg-blue-50/50 text-gray-800 border border-gray-200 rounded-lg mb-2"
                     >
                       <span className="font-medium">{faq.question}</span>
                       {openFAQ === faq.id ? (
-                        <ChevronUp className="h-4 w-4 text-purple-300" />
+                        <ChevronUp className="h-4 w-4 text-blue-600" />
                       ) : (
-                        <ChevronDown className="h-4 w-4 text-purple-300" />
+                        <ChevronDown className="h-4 w-4 text-blue-600" />
                       )}
                     </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-4 pb-4">
-                    <div className="pt-2 border-t border-purple-600/30">
-                      <p className="text-purple-200 leading-relaxed">{faq.answer}</p>
+                    <div className="pt-2 border-t border-gray-200 bg-gray-50/50 rounded-lg p-4 mt-2">
+                      <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
@@ -197,7 +199,7 @@ const HelpSupport = () => {
               
               {filteredFAQs.length === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-purple-300">No FAQs match your search. Try different keywords.</p>
+                  <p className="text-gray-500">No FAQs match your search. Try different keywords.</p>
                 </div>
               )}
             </CardContent>

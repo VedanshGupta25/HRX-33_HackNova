@@ -81,26 +81,26 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-2xl font-bold text-gray-800">Join LearnAI</CardTitle>
-              <CardDescription className="text-gray-600">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-0">
+            <CardHeader className="text-center pb-2 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
+              <CardTitle className="text-2xl font-bold">Join LearnAI</CardTitle>
+              <CardDescription className="text-white/90">
                 Create your account and start your personalized learning journey
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-8">
               {/* Social Sign Up Buttons */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Button 
                   onClick={() => handleSocialSignUp('Google')}
                   variant="outline" 
-                  className="flex items-center gap-2 hover:bg-red-50 hover:border-red-300"
+                  className="flex items-center gap-2 hover:bg-red-50 hover:border-red-300 border-gray-300"
                 >
                   <Chrome className="h-4 w-4 text-red-500" />
                   Google
@@ -109,7 +109,7 @@ const SignUp = () => {
                 <Button 
                   onClick={() => handleSocialSignUp('GitHub')}
                   variant="outline" 
-                  className="flex items-center gap-2 hover:bg-gray-50 hover:border-gray-400"
+                  className="flex items-center gap-2 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
                 >
                   <Github className="h-4 w-4" />
                   GitHub
@@ -118,7 +118,7 @@ const SignUp = () => {
                 <Button 
                   onClick={() => handleSocialSignUp('Facebook')}
                   variant="outline" 
-                  className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300"
+                  className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
                 >
                   <Facebook className="h-4 w-4 text-blue-600" />
                   Facebook
@@ -143,7 +143,7 @@ const SignUp = () => {
                       placeholder="First name"
                       value={formData.firstName}
                       onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                   </div>
@@ -155,7 +155,7 @@ const SignUp = () => {
                       placeholder="Last name"
                       value={formData.lastName}
                       onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                   </div>
@@ -169,14 +169,14 @@ const SignUp = () => {
                     placeholder="Email address"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 {/* Experience Level */}
                 <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500">
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
                   <SelectContent>
@@ -199,7 +199,11 @@ const SignUp = () => {
                         variant={formData.interests.includes(interest) ? "default" : "outline"}
                         size="sm"
                         onClick={() => toggleInterest(interest)}
-                        className="text-xs justify-start"
+                        className={`text-xs justify-start ${
+                          formData.interests.includes(interest)
+                            ? 'bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white border-0'
+                            : 'border-gray-300 hover:bg-blue-50 hover:border-blue-400'
+                        }`}
                       >
                         {interest}
                       </Button>
@@ -216,7 +220,7 @@ const SignUp = () => {
                       placeholder="Password"
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
-                      className="pl-10 pr-10"
+                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                     <button
@@ -239,7 +243,7 @@ const SignUp = () => {
                       placeholder="Confirm password"
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                      className="pl-10 pr-10"
+                      className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                     <button
@@ -258,7 +262,7 @@ const SignUp = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                   disabled={isLoading}
                 >
                   {isLoading ? "Creating Account..." : "Create Account"}
@@ -267,7 +271,7 @@ const SignUp = () => {
 
               <div className="text-center text-sm text-gray-600">
                 Already have an account?{' '}
-                <Link to="/signin" className="text-purple-600 hover:text-purple-800 font-medium">
+                <Link to="/signin" className="text-blue-600 hover:text-blue-800 font-medium">
                   Sign in
                 </Link>
               </div>

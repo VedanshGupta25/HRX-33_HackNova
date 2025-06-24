@@ -38,26 +38,26 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
-          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-2xl font-bold text-gray-800">Welcome Back</CardTitle>
-              <CardDescription className="text-gray-600">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-0">
+            <CardHeader className="text-center pb-2 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
+              <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+              <CardDescription className="text-white/90">
                 Sign in to continue your learning journey
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-8">
               {/* Social Sign In Buttons */}
               <div className="space-y-3">
                 <Button 
                   onClick={() => handleSocialSignIn('Google')}
                   variant="outline" 
-                  className="w-full flex items-center gap-3 hover:bg-red-50 hover:border-red-300"
+                  className="w-full flex items-center gap-3 hover:bg-red-50 hover:border-red-300 border-gray-300"
                 >
                   <Chrome className="h-5 w-5 text-red-500" />
                   Continue with Google
@@ -66,7 +66,7 @@ const SignIn = () => {
                 <Button 
                   onClick={() => handleSocialSignIn('GitHub')}
                   variant="outline" 
-                  className="w-full flex items-center gap-3 hover:bg-gray-50 hover:border-gray-400"
+                  className="w-full flex items-center gap-3 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
                 >
                   <Github className="h-5 w-5" />
                   Continue with GitHub
@@ -75,7 +75,7 @@ const SignIn = () => {
                 <Button 
                   onClick={() => handleSocialSignIn('Facebook')}
                   variant="outline" 
-                  className="w-full flex items-center gap-3 hover:bg-blue-50 hover:border-blue-300"
+                  className="w-full flex items-center gap-3 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
                 >
                   <Facebook className="h-5 w-5 text-blue-600" />
                   Continue with Facebook
@@ -98,7 +98,7 @@ const SignIn = () => {
                     placeholder="Email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
@@ -110,7 +110,7 @@ const SignIn = () => {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                   <button
@@ -131,14 +131,14 @@ const SignIn = () => {
                     <input type="checkbox" className="rounded" />
                     <span className="text-gray-600">Remember me</span>
                   </label>
-                  <Link to="/forgot-password" className="text-purple-600 hover:text-purple-800">
+                  <Link to="/forgot-password" className="text-blue-600 hover:text-blue-800">
                     Forgot password?
                   </Link>
                 </div>
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing in..." : "Sign In"}
@@ -147,7 +147,7 @@ const SignIn = () => {
 
               <div className="text-center text-sm text-gray-600">
                 Don't have an account?{' '}
-                <Link to="/signup" className="text-purple-600 hover:text-purple-800 font-medium">
+                <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium">
                   Sign up
                 </Link>
               </div>

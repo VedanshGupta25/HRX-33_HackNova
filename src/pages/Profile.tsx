@@ -48,51 +48,51 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">Customize Your Profile</h1>
-            <p className="text-purple-200 text-lg">Personalize your learning experience</p>
+          <div className="text-center mb-12 animate-fade-in">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">Customize Your Profile</h1>
+            <p className="text-xl text-gray-600 mb-8">Personalize your learning experience</p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Profile Avatar & Basic Info */}
-            <Card className="lg:col-span-1 bg-purple-800/30 border-purple-600/30 backdrop-blur-sm">
-              <CardHeader className="text-center">
+            <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
                 <div className="flex justify-center mb-4">
-                  <Avatar className="w-24 h-24">
+                  <Avatar className="w-24 h-24 border-4 border-white/30">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-cyan-500 text-white text-2xl">
+                    <AvatarFallback className="bg-white/20 text-white text-2xl">
                       <User className="h-8 w-8" />
                     </AvatarFallback>
                   </Avatar>
                 </div>
                 <CardTitle className="text-white">Profile Avatar</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 p-6">
                 <div>
-                  <label className="block text-sm font-medium text-purple-200 mb-2">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
                   <Input
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="bg-purple-700/30 border-purple-600/50 text-white placeholder:text-purple-300"
+                    className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-purple-200 mb-2">Experience Level</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
                   <Select value={experienceLevel} onValueChange={setExperienceLevel}>
-                    <SelectTrigger className="bg-purple-700/30 border-purple-600/50 text-white">
+                    <SelectTrigger className="bg-white border-gray-300 focus:border-blue-500">
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
-                    <SelectContent className="bg-purple-800 border-purple-600">
-                      <SelectItem value="beginner" className="text-white hover:bg-purple-700">Beginner</SelectItem>
-                      <SelectItem value="intermediate" className="text-white hover:bg-purple-700">Intermediate</SelectItem>
-                      <SelectItem value="advanced" className="text-white hover:bg-purple-700">Advanced</SelectItem>
+                    <SelectContent className="bg-white border-gray-300">
+                      <SelectItem value="beginner" className="hover:bg-blue-50">Beginner</SelectItem>
+                      <SelectItem value="intermediate" className="hover:bg-blue-50">Intermediate</SelectItem>
+                      <SelectItem value="advanced" className="hover:bg-blue-50">Advanced</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -100,17 +100,17 @@ const Profile = () => {
             </Card>
 
             {/* Interests & Goals */}
-            <Card className="lg:col-span-2 bg-purple-800/30 border-purple-600/30 backdrop-blur-sm">
-              <CardHeader>
+            <Card className="lg:col-span-2 bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
                 <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-cyan-400" />
-                  <CardTitle className="text-white">Your Interests</CardTitle>
+                  <Star className="h-5 w-5" />
+                  <CardTitle>Your Interests</CardTitle>
                 </div>
-                <CardDescription className="text-purple-200">
+                <CardDescription className="text-white/90">
                   Select topics that interest you for personalized recommendations
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                   {interests.map((interest) => (
                     <Button
@@ -120,8 +120,8 @@ const Profile = () => {
                       onClick={() => toggleInterest(interest)}
                       className={`text-sm transition-all ${
                         selectedInterests.includes(interest)
-                          ? 'bg-cyan-500 hover:bg-cyan-600 text-white border-cyan-500'
-                          : 'bg-transparent border-purple-500 text-purple-200 hover:bg-purple-700/30 hover:border-cyan-400'
+                          ? 'bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white border-0'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400'
                       }`}
                     >
                       {interest}
@@ -131,15 +131,15 @@ const Profile = () => {
                 
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <Settings className="h-5 w-5 text-cyan-400" />
-                    <h3 className="text-white font-semibold">Background & Goals</h3>
+                    <Settings className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-gray-800 font-semibold">Background & Goals</h3>
                   </div>
                   <textarea
                     placeholder="Tell us about your educational background, current projects, and learning goals..."
                     value={background}
                     onChange={(e) => setBackground(e.target.value)}
                     rows={4}
-                    className="w-full p-3 rounded-md bg-purple-700/30 border border-purple-600/50 text-white placeholder:text-purple-300 resize-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className="w-full p-3 rounded-md bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </CardContent>
@@ -150,7 +150,7 @@ const Profile = () => {
           <div className="mt-8 text-center">
             <Button 
               onClick={handleSaveProfile}
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-all"
+              className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-all"
             >
               <Save className="h-5 w-5 mr-2" />
               Save Profile
@@ -159,12 +159,12 @@ const Profile = () => {
 
           {/* Selected Interests Display */}
           {selectedInterests.length > 0 && (
-            <Card className="mt-8 bg-purple-800/20 border-purple-600/30 backdrop-blur-sm">
-              <CardContent className="p-4">
-                <h3 className="text-white font-medium mb-3">Selected Interests ({selectedInterests.length})</h3>
+            <Card className="mt-8 bg-white/80 backdrop-blur-sm shadow-lg border-0">
+              <CardContent className="p-6">
+                <h3 className="text-gray-800 font-medium mb-3">Selected Interests ({selectedInterests.length})</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedInterests.map((interest) => (
-                    <Badge key={interest} className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30">
+                    <Badge key={interest} className="bg-gradient-to-r from-blue-600 to-green-600 text-white border-0">
                       {interest}
                     </Badge>
                   ))}

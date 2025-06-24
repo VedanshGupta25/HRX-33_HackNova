@@ -5,6 +5,36 @@ import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Volume2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// TypeScript declarations for Web Speech API
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+  isFinal: boolean;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
 interface VoiceCommandsProps {
   onVoiceCommand: (command: string, text?: string) => void;
   onVoiceInput: (text: string) => void;
@@ -15,7 +45,7 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
   onVoiceInput 
 }) => {
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognition, setRecognition] = useState<any>(null);
   const [showCommands, setShowCommands] = useState(false);
   const { toast } = useToast();
 
@@ -28,7 +58,8 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
   ];
 
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    if (typeof window !== 'undefined' && 
+        ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognitionInstance = new SpeechRecognition();
       
@@ -36,7 +67,7 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
       recognitionInstance.interimResults = true;
       recognitionInstance.lang = 'en-US';
 
-      recognitionInstance.onresult = (event) => {
+      recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = Array.from(event.results)
           .map(result => result[0])
           .map(result => result.transcript)
@@ -53,7 +84,7 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
         }
       };
 
-      recognitionInstance.onerror = (event) => {
+      recognitionInstance.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         toast({
@@ -141,11 +172,11 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
     <div className="fixed bottom-4 right-4 z-50">
       {/* Voice Commands Help Popup */}
       {showCommands && (
-        <Card className="mb-4 w-80 bg-white/95 backdrop-blur-sm shadow-xl border-purple-200">
+        <Card className="mb-4 w-80 bg-white/95 backdrop-blur-sm shadow-xl border-blue-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Volume2 className="h-4 w-4 text-purple-600" />
+                <Volume2 className="h-4 w-4 text-blue-600" />
                 <h3 className="font-semibold text-gray-800">Voice Commands</h3>
               </div>
               <Button
@@ -160,7 +191,7 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
             <div className="space-y-2">
               {voiceCommands.map((cmd, index) => (
                 <div key={index} className="text-sm">
-                  <span className="font-medium text-purple-600">"{cmd.command}"</span>
+                  <span className="font-medium text-blue-600">"{cmd.command}"</span>
                   <span className="text-gray-600"> - {cmd.action}</span>
                 </div>
               ))}
@@ -175,7 +206,7 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
           onClick={() => setShowCommands(!showCommands)}
           variant="outline"
           size="sm"
-          className="bg-white/90 backdrop-blur-sm hover:bg-purple-50 border-purple-200"
+          className="bg-white/90 backdrop-blur-sm hover:bg-blue-50 border-blue-200"
         >
           <Volume2 className="h-4 w-4" />
         </Button>
@@ -185,7 +216,7 @@ export const VoiceCommands: React.FC<VoiceCommandsProps> = ({
           className={`${
             isListening 
               ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-              : 'bg-purple-600 hover:bg-purple-700'
+              : 'bg-blue-600 hover:bg-blue-700'
           } text-white shadow-lg`}
         >
           {isListening ? (

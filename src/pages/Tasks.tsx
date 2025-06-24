@@ -194,7 +194,6 @@ const Tasks = () => {
             inputType={inputType}
             onInputTypeChange={setInputType}
             isLoading={isLoading}
-            initialValue={currentInput}
           />
 
           {isLoading && <LoadingSpinner />}
