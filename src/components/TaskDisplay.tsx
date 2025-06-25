@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,8 +13,10 @@ import {
   BookOpen, 
   Code, 
   Lightbulb,
-  Timer
+  Timer,
+  Eye
 } from 'lucide-react';
+import { TaskPreviewModal } from './TaskPreviewModal';
 
 interface Task {
   id: string;
@@ -46,6 +47,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
   completedTasks
 }) => {
   const [timeRemaining, setTimeRemaining] = useState<{[key: string]: number}>({});
+  const [previewTask, setPreviewTask] = useState<Task | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -87,13 +89,13 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case 'beginner':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700';
       case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700';
       case 'advanced':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600';
     }
   };
 
@@ -128,8 +130,12 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
   return (
     <div className="mt-8 space-y-8">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Learning Tasks</h2>
-        <p className="text-gray-600">Complete tasks to earn XP, unlock achievements, and level up!</p>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors duration-300">
+          Your Learning Tasks
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">
+          Complete tasks to earn XP, unlock achievements, and level up!
+        </p>
       </div>
 
       {difficultyOrder.map(difficulty => {
@@ -138,7 +144,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
 
         return (
           <div key={difficulty} className="animate-fade-in">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4 capitalize flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 capitalize flex items-center gap-2 transition-colors duration-300">
               <Trophy className="h-5 w-5" />
               {difficulty} Level
             </h3>
@@ -154,12 +160,12 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                 return (
                   <Card 
                     key={task.id}
-                    className={`transition-all duration-300 hover:shadow-lg ${
+                    className={`transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-700/20 ${
                       isCompleted 
-                        ? 'bg-green-50 border-green-200' 
+                        ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700' 
                         : isActive 
-                        ? 'bg-blue-50 border-blue-200 shadow-lg' 
-                        : 'hover:scale-105'
+                        ? 'bg-blue-50 border-blue-200 shadow-lg dark:bg-blue-900/20 dark:border-blue-700 dark:shadow-blue-900/20' 
+                        : 'hover:scale-105 dark:bg-gray-800/50 dark:border-gray-700'
                     }`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
@@ -171,16 +177,20 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                             {task.difficulty}
                           </Badge>
                         </div>
-                        {isCompleted && <CheckCircle className="h-6 w-6 text-green-600" />}
+                        {isCompleted && <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />}
                       </div>
                       
-                      <CardTitle className="text-lg leading-tight">{task.title}</CardTitle>
-                      <CardDescription className="text-sm">{task.description}</CardDescription>
+                      <CardTitle className="text-lg leading-tight dark:text-gray-100 transition-colors duration-300">
+                        {task.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm dark:text-gray-400 transition-colors duration-300">
+                        {task.description}
+                      </CardDescription>
                     </CardHeader>
 
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
                             <span>{task.estimatedTime}</span>
@@ -192,7 +202,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                         </div>
 
                         {task.xpReward && (
-                          <div className="flex items-center gap-1 text-sm font-medium text-blue-600">
+                          <div className="flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 transition-colors duration-300">
                             <Trophy className="h-4 w-4" />
                             <span>{task.xpReward} XP</span>
                           </div>
@@ -201,40 +211,54 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                         {isActive && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
-                              <span className="font-medium">Progress</span>
+                              <span className="font-medium dark:text-gray-300 transition-colors duration-300">Progress</span>
                               <div className="flex items-center gap-1">
-                                <Timer className="h-4 w-4 text-blue-600" />
-                                <span className="font-mono">{formatTime(remaining)}</span>
+                                <Timer className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                <span className="font-mono dark:text-gray-300 transition-colors duration-300">{formatTime(remaining)}</span>
                               </div>
                             </div>
                             <Progress value={progress} className="h-2" />
                           </div>
                         )}
 
-                        <div className="pt-2">
+                        <div className="pt-2 space-y-2">
                           {isCompleted ? (
-                            <div className="flex items-center justify-center gap-2 text-green-600 font-medium">
+                            <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-medium transition-colors duration-300">
                               <CheckCircle className="h-4 w-4" />
                               <span>Completed!</span>
                             </div>
-                          ) : isActive ? (
-                            <Button 
-                              onClick={() => onTaskEnd(task.id, task.title)}
-                              variant="destructive"
-                              className="w-full"
-                            >
-                              <Square className="h-4 w-4 mr-2" />
-                              End Task
-                            </Button>
                           ) : (
-                            <Button 
-                              onClick={() => onTaskStart(task.id, task.title, duration)}
-                              className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
-                              disabled={!!activeTask}
-                            >
-                              <Play className="h-4 w-4 mr-2" />
-                              Start Task
-                            </Button>
+                            <div className="space-y-2">
+                              <div className="flex gap-2">
+                                <Button 
+                                  onClick={() => setPreviewTask(task)}
+                                  variant="outline"
+                                  className="flex-1 transition-all duration-300 hover:scale-105 dark:border-gray-600 dark:hover:bg-gray-700"
+                                >
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Preview
+                                </Button>
+                                {isActive ? (
+                                  <Button 
+                                    onClick={() => onTaskEnd(task.id, task.title)}
+                                    variant="destructive"
+                                    className="flex-1 transition-all duration-300 hover:scale-105"
+                                  >
+                                    <Square className="h-4 w-4 mr-2" />
+                                    End Task
+                                  </Button>
+                                ) : (
+                                  <Button 
+                                    onClick={() => onTaskStart(task.id, task.title, duration)}
+                                    className="flex-1 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-300 hover:scale-105"
+                                    disabled={!!activeTask}
+                                  >
+                                    <Play className="h-4 w-4 mr-2" />
+                                    Start Task
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -248,16 +272,24 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
       })}
 
       {completedTasks.size > 0 && (
-        <div className="mt-8 p-4 bg-green-50 rounded-lg border border-green-200">
-          <h3 className="text-lg font-semibold text-green-800 mb-2 flex items-center gap-2">
+        <div className="mt-8 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700 transition-all duration-300">
+          <h3 className="text-lg font-semibold text-green-800 dark:text-green-300 mb-2 flex items-center gap-2 transition-colors duration-300">
             <Trophy className="h-5 w-5" />
             Completed Tasks ({completedTasks.size})
           </h3>
-          <p className="text-green-700 text-sm">
+          <p className="text-green-700 dark:text-green-400 text-sm transition-colors duration-300">
             Great job! You've completed {completedTasks.size} task{completedTasks.size > 1 ? 's' : ''}. 
             Keep up the excellent work!
           </p>
         </div>
+      )}
+
+      {previewTask && (
+        <TaskPreviewModal
+          task={previewTask}
+          isOpen={!!previewTask}
+          onClose={() => setPreviewTask(null)}
+        />
       )}
     </div>
   );

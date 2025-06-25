@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
 import { InputSection } from '@/components/InputSection';
@@ -281,7 +282,7 @@ const Tasks = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500 ease-in-out">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
@@ -292,7 +293,7 @@ const Tasks = () => {
               onClick={() => setShowGuide(true)}
               variant="outline"
               size="sm"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-none transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-none transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl dark:shadow-purple-900/20"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Learning Guide</span>
@@ -308,10 +309,10 @@ const Tasks = () => {
           />
 
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4 transition-colors duration-300">
+            <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 transition-colors duration-300">
               Learning Tasks
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto transition-colors duration-300">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto transition-colors duration-300">
               Generate personalized learning tasks and earn rewards for your progress
             </p>
           </div>

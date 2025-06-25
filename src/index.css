@@ -89,15 +89,33 @@
 @layer base {
   * {
     @apply border-border;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
     @apply bg-background text-foreground;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   html {
-    transition: background-color 0.3s ease;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Enhanced smooth transitions for all elements */
+  button, input, textarea, select, div, span, p, h1, h2, h3, h4, h5, h6 {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Smooth shadow transitions */
+  .shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Enhanced card transitions */
+  [class*="bg-"], [class*="border-"], [class*="text-"] {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -113,6 +131,10 @@
   
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-theme-transition {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -151,4 +173,24 @@
   to {
     box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
   }
+}
+
+/* Scrollbar styling for dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
 }
