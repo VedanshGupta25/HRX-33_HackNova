@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
 import { InputSection } from '@/components/InputSection';
@@ -139,9 +138,8 @@ const Tasks = () => {
       return;
     }
 
-    // Extract numeric duration from estimatedTime string
-    const durationMatch = duration.toString().match(/(\d+)/);
-    const durationMinutes = durationMatch ? parseInt(durationMatch[1]) : 30;
+    // Use the duration in minutes directly
+    const durationMinutes = duration;
 
     setActiveTask(taskId);
     setTaskTimers(prev => ({
@@ -154,7 +152,7 @@ const Tasks = () => {
 
     toast({
       title: "Task Started! ⏰",
-      description: `Timer started for "${taskTitle}". You have ${durationMinutes} minutes to complete it.`,
+      description: `Timer started for "${taskTitle}". You have ${durationMinutes > 60 ? `${Math.floor(durationMinutes/60)} hour${Math.floor(durationMinutes/60) > 1 ? 's' : ''}` + (durationMinutes % 60 > 0 ? ` ${durationMinutes % 60} minutes` : '') : `${durationMinutes} minutes`} to complete it.`,
     });
   };
 

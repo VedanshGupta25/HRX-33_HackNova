@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -100,14 +101,38 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
   };
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const extractDuration = (estimatedTime: string): number => {
-    const match = estimatedTime.match(/(\d+)/);
-    return match ? parseInt(match[1]) : 30;
+    // Extract both hours and minutes from the estimated time
+    const hourMatch = estimatedTime.match(/(\d+)\s*hour/i);
+    const minuteMatch = estimatedTime.match(/(\d+)\s*min/i);
+    
+    let totalMinutes = 0;
+    
+    if (hourMatch) {
+      totalMinutes += parseInt(hourMatch[1]) * 60;
+    }
+    
+    if (minuteMatch) {
+      totalMinutes += parseInt(minuteMatch[1]);
+    }
+    
+    // If no specific time found, try to extract any number and assume minutes
+    if (totalMinutes === 0) {
+      const numberMatch = estimatedTime.match(/(\d+)/);
+      totalMinutes = numberMatch ? parseInt(numberMatch[1]) : 30;
+    }
+    
+    return totalMinutes;
   };
 
   const calculateProgress = (taskId: string): number => {

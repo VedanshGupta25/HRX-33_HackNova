@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -101,45 +100,131 @@ export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen
     return baseHints;
   };
 
-  const getTemplateSteps = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'reading':
-        return [
-          "Preview the material and scan headings",
-          "Read actively with focus and intention",
-          "Take notes on key concepts and examples",
-          "Summarize main points in your own words",
-          "Review and reflect on what you've learned"
-        ];
-      case 'exercise':
-        return [
-          "Understand the problem requirements",
-          "Plan your approach and strategy", 
-          "Implement your solution step by step",
-          "Test your solution with examples",
-          "Review and optimize your approach"
-        ];
-      case 'project':
-        return [
-          "Define clear project objectives and scope",
-          "Break the project into manageable tasks",
-          "Create a timeline and set milestones",
-          "Build incrementally and test frequently",
-          "Document your work and share results"
-        ];
-      default:
-        return [
-          "Review the task requirements",
-          "Plan your learning approach",
-          "Execute with focused attention",
-          "Validate your understanding",
-          "Reflect on lessons learned"
-        ];
+  const getDetailedSteps = (type: string, difficulty: string) => {
+    const baseSteps = {
+      reading: [
+        {
+          title: "Preview and scan the material",
+          description: "Quickly scan headings, subheadings, and any highlighted text to get an overview of the content structure",
+          duration: "5-10 minutes"
+        },
+        {
+          title: "Set clear learning objectives",
+          description: "Define what you want to learn and what questions you hope to answer by the end of the reading session",
+          duration: "2-3 minutes"
+        },
+        {
+          title: "Read actively with focus",
+          description: "Read with intention, highlighting key concepts, asking questions, and making mental connections to prior knowledge",
+          duration: "60-70% of total time"
+        },
+        {
+          title: "Take comprehensive notes",
+          description: "Write down key concepts, examples, and insights in your own words. Use bullet points, diagrams, or mind maps",
+          duration: "Throughout reading"
+        },
+        {
+          title: "Summarize and reflect",
+          description: "Write a brief summary of main points and reflect on how this knowledge connects to your existing understanding",
+          duration: "10-15 minutes"
+        },
+        {
+          title: "Review and test understanding",
+          description: "Quiz yourself on key concepts or explain the material to someone else to solidify your learning",
+          duration: "5-10 minutes"
+        }
+      ],
+      exercise: [
+        {
+          title: "Understand the problem completely",
+          description: "Read the requirements carefully, identify input/output expectations, and clarify any ambiguous points",
+          duration: "10-15% of total time"
+        },
+        {
+          title: "Break down the problem",
+          description: "Divide the problem into smaller, manageable sub-problems and identify the core logic needed",
+          duration: "15-20% of total time"
+        },
+        {
+          title: "Plan your approach and strategy",
+          description: "Choose the right algorithms, data structures, and design patterns. Sketch out your solution on paper",
+          duration: "15-20% of total time"
+        },
+        {
+          title: "Implement step by step",
+          description: "Start with the basic structure, then add functionality incrementally. Write clean, readable code",
+          duration: "40-50% of total time"
+        },
+        {
+          title: "Test thoroughly with examples",
+          description: "Test with edge cases, boundary conditions, and multiple input scenarios to ensure correctness",
+          duration: "15-20% of total time"
+        },
+        {
+          title: "Review and optimize",
+          description: "Analyze time/space complexity, refactor if needed, and document your solution with comments",
+          duration: "5-10% of total time"
+        }
+      ],
+      project: [
+        {
+          title: "Define project scope and objectives",
+          description: "Clearly outline what the project will accomplish, its boundaries, and success criteria",
+          duration: "10-15% of total time"
+        },
+        {
+          title: "Research and gather requirements",
+          description: "Study similar projects, gather user requirements, and understand technical constraints",
+          duration: "15-20% of total time"
+        },
+        {
+          title: "Design the architecture",
+          description: "Create system design, choose technologies, and plan the overall structure and component interactions",
+          duration: "20-25% of total time"
+        },
+        {
+          title: "Break into manageable tasks",
+          description: "Divide the project into specific, actionable tasks with clear deliverables and timelines",
+          duration: "5-10% of total time"
+        },
+        {
+          title: "Implement incrementally",
+          description: "Build the core functionality first, then add features iteratively. Focus on MVP (Minimum Viable Product)",
+          duration: "40-50% of total time"
+        },
+        {
+          title: "Test and iterate",
+          description: "Continuously test your work, gather feedback, and make improvements throughout the development process",
+          duration: "Throughout development"
+        },
+        {
+          title: "Document and present results",
+          description: "Create comprehensive documentation, prepare a demo, and reflect on lessons learned",
+          duration: "10-15% of total time"
+        }
+      ]
+    };
+
+    const typeSteps = baseSteps[type.toLowerCase() as keyof typeof baseSteps] || baseSteps.reading;
+    
+    // Add difficulty-specific guidance
+    if (difficulty.toLowerCase() === 'beginner') {
+      return typeSteps.map(step => ({
+        ...step,
+        description: step.description + " (Take extra time to understand each concept thoroughly)"
+      }));
+    } else if (difficulty.toLowerCase() === 'advanced') {
+      return typeSteps.map(step => ({
+        ...step,
+        description: step.description + " (Focus on advanced techniques and optimization)"
+      }));
     }
+    
+    return typeSteps;
   };
 
   const hints = getHelpfulHints(task.type, task.difficulty);
-  const steps = getTemplateSteps(task.type);
+  const steps = getDetailedSteps(task.type, task.difficulty);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -150,7 +235,7 @@ export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen
             Task Preview
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400 transition-colors duration-300">
-            Get helpful hints and step-by-step guidance before starting this task
+            Get helpful hints and detailed step-by-step guidance before starting this task
           </DialogDescription>
         </DialogHeader>
 
@@ -222,24 +307,41 @@ export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen
             </CardContent>
           </Card>
 
-          {/* Template Guide */}
+          {/* Step by Step Guide */}
           <Card className="bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300 transition-colors duration-300">
                 <Code className="h-5 w-5" />
-                {task.type.charAt(0).toUpperCase() + task.type.slice(1)} Template
+                Step by Step Guide - {task.type.charAt(0).toUpperCase() + task.type.slice(1)}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {steps.map((step, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-md transition-all duration-300">
-                    <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center p-0 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700">
+                  <div key={index} className="flex gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm transition-all duration-300">
+                    <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center p-0 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700 flex-shrink-0">
                       {index + 1}
                     </Badge>
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">{step}</span>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
+                        {step.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors duration-300">
+                        {step.description}
+                      </p>
+                      <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 transition-colors duration-300">
+                        <Clock className="h-3 w-3" />
+                        <span>{step.duration}</span>
+                      </div>
+                    </div>
                   </div>
                 ))}
+              </div>
+              <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                <p className="text-sm text-green-800 dark:text-green-300 transition-colors duration-300">
+                  💡 <strong>Pro Tip:</strong> Follow these steps in order for the best learning experience. 
+                  Each step builds upon the previous one to maximize your understanding and retention.
+                </p>
               </div>
             </CardContent>
           </Card>
