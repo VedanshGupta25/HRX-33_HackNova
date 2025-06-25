@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +22,6 @@ import {
   Loader2,
   RefreshCw,
   Map,
-  Guide,
   Sun,
   Moon,
   Monitor,
@@ -391,7 +391,7 @@ Would you like me to explain any specific step or help you get started with the 
               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transform hover:scale-105 transition-all duration-300"
               size="sm"
             >
-              <Guide className="h-4 w-4 mr-2" />
+              <BookOpen className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Step-by-Step Guide</span>
               <span className="sm:hidden">Guide</span>
             </Button>
@@ -428,7 +428,7 @@ Would you like me to explain any specific step or help you get started with the 
                 <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-lg sticky top-0 z-10">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <Guide className="h-6 w-6" />
+                      <BookOpen className="h-6 w-6" />
                       Step-by-Step Learning Guide
                     </CardTitle>
                     <Button
