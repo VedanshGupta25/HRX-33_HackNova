@@ -18,6 +18,9 @@ const Tasks = () => {
   const [currentInput, setCurrentInput] = useState('');
   const [showRewards, setShowRewards] = useState(false);
   const [rewardData, setRewardData] = useState<any>(null);
+  const [activeTask, setActiveTask] = useState<string | null>(null);
+  const [taskTimers, setTaskTimers] = useState<{[key: string]: { startTime: Date, duration: number }}>({});
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const { userProgress, completeTask, useVoiceCommand, getXpForNextLevel } = useGamification();
 
@@ -66,7 +69,8 @@ const Tasks = () => {
           description: `Learn the fundamentals and core concepts of ${input}`,
           difficulty: 'Beginner',
           estimatedTime: '15 minutes',
-          type: 'Reading'
+          type: 'Reading',
+          duration: 15
         },
         {
           id: 'mock_2',
@@ -74,7 +78,8 @@ const Tasks = () => {
           description: `Apply your knowledge through hands-on exercises`,
           difficulty: 'Intermediate',
           estimatedTime: '30 minutes',
-          type: 'Exercise'
+          type: 'Exercise',
+          duration: 30
         },
         {
           id: 'mock_3',
@@ -82,7 +87,8 @@ const Tasks = () => {
           description: `Master advanced concepts and best practices`,
           difficulty: 'Advanced',
           estimatedTime: '45 minutes',
-          type: 'Project'
+          type: 'Project',
+          duration: 45
         }
       ];
       
@@ -98,8 +104,53 @@ const Tasks = () => {
     }
   };
 
-  const handleTaskComplete = (taskTitle: string) => {
+  const handleTaskStart = (taskId: string, taskTitle: string, duration: number) => {
+    if (completedTasks.has(taskId) || activeTask === taskId) {
+      toast({
+        title: "Task Already Started",
+        description: "This task is already in progress or completed.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setActiveTask(taskId);
+    setTaskTimers(prev => ({
+      ...prev,
+      [taskId]: {
+        startTime: new Date(),
+        duration: duration * 60 // Convert minutes to seconds
+      }
+    }));
+
+    toast({
+      title: "Task Started! ⏰",
+      description: `Timer started for "${taskTitle}". You have ${duration} minutes to complete it.`,
+    });
+  };
+
+  const handleTaskComplete = (taskId: string, taskTitle: string) => {
+    if (completedTasks.has(taskId)) {
+      toast({
+        title: "Task Already Completed",
+        description: "You've already earned points for this task.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const result = completeTask('learning');
+    setCompletedTasks(prev => new Set([...prev, taskId]));
+    
+    // Remove from active tasks and timers
+    if (activeTask === taskId) {
+      setActiveTask(null);
+    }
+    setTaskTimers(prev => {
+      const updated = { ...prev };
+      delete updated[taskId];
+      return updated;
+    });
     
     // Show reward notification
     setRewardData({
@@ -152,7 +203,8 @@ const Tasks = () => {
         break;
       case 'start':
         if (tasks.length > 0) {
-          handleTaskComplete(tasks[0].title);
+          const firstTask = tasks[0];
+          handleTaskStart(firstTask.id, firstTask.title, firstTask.duration || 30);
         } else {
           toast({
             title: "No Tasks Available",
@@ -162,14 +214,12 @@ const Tasks = () => {
         }
         break;
       case 'showDetails':
-        // This would be handled by the TaskDisplay component
         toast({
           title: "Showing Details 👁️",
           description: "Task details are now visible.",
         });
         break;
       case 'hideDetails':
-        // This would be handled by the TaskDisplay component
         toast({
           title: "Hiding Details 🙈",
           description: "Task details are now hidden.",
@@ -180,7 +230,6 @@ const Tasks = () => {
 
   const handleVoiceInput = (text: string) => {
     setCurrentInput(text);
-    // Track voice command usage for voice input as well
     useVoiceCommand();
   };
 
@@ -209,14 +258,19 @@ const Tasks = () => {
             inputType={inputType}
             onInputTypeChange={setInputType}
             isLoading={isLoading}
-            currentInput={currentInput}
-            onInputChange={setCurrentInput}
           />
 
           {isLoading && <LoadingSpinner />}
 
           {tasks.length > 0 && !isLoading && (
-            <TaskDisplay tasks={tasks} onTaskComplete={handleTaskComplete} />
+            <TaskDisplay 
+              tasks={tasks} 
+              onTaskStart={handleTaskStart}
+              onTaskComplete={handleTaskComplete}
+              activeTask={activeTask}
+              taskTimers={taskTimers}
+              completedTasks={completedTasks}
+            />
           )}
         </div>
       </main>

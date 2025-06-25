@@ -1,88 +1,109 @@
-
 import React from 'react';
-import { Brain, Users, Trophy, HelpCircle, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  BookOpen, 
+  Trophy, 
+  Users, 
+  HelpCircle, 
+  User,
+  MessageCircle,
+  LogIn
+} from 'lucide-react';
 
 export const Header = () => {
   const location = useLocation();
-
+  
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40 shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <Brain className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-              LearnAI
-            </span>
+          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+              <BookOpen className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-800">EduAI</span>
           </Link>
-          
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link 
-              to="/tasks" 
-              className={`flex items-center space-x-1 transition-colors ${
-                isActive('/tasks') 
-                  ? 'text-blue-600' 
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <Brain className="h-4 w-4" />
-              <span>Tasks</span>
+
+          <nav className="hidden md:flex items-center space-x-1">
+            <Link to="/tasks">
+              <Button 
+                variant={isActive('/tasks') ? "default" : "ghost"}
+                className="flex items-center space-x-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>Tasks</span>
+              </Button>
             </Link>
-            <Link 
-              to="/collaborate" 
-              className={`flex items-center space-x-1 transition-colors ${
-                isActive('/collaborate') 
-                  ? 'text-blue-600' 
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <Users className="h-4 w-4" />
-              <span>Collaborate</span>
+            
+            <Link to="/achievements">
+              <Button 
+                variant={isActive('/achievements') ? "default" : "ghost"}
+                className="flex items-center space-x-2"
+              >
+                <Trophy className="h-4 w-4" />
+                <span>Achievements</span>
+              </Button>
             </Link>
-            <Link 
-              to="/achievements" 
-              className={`flex items-center space-x-1 transition-colors ${
-                isActive('/achievements') 
-                  ? 'text-blue-600' 
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <Trophy className="h-4 w-4" />
-              <span>Achievements</span>
+            
+            <Link to="/collaborate">
+              <Button 
+                variant={isActive('/collaborate') ? "default" : "ghost"}
+                className="flex items-center space-x-2"
+              >
+                <Users className="h-4 w-4" />
+                <span>Collaborate</span>
+              </Button>
             </Link>
-            <Link 
-              to="/help-support" 
-              className={`flex items-center space-x-1 transition-colors ${
-                isActive('/help-support') 
-                  ? 'text-blue-600' 
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <HelpCircle className="h-4 w-4" />
-              <span>Help</span>
+
+            <Link to="/chat">
+              <Button 
+                variant={isActive('/chat') ? "default" : "ghost"}
+                className="flex items-center space-x-2 relative"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>AI Chat</span>
+                <Badge className="bg-green-500 text-white ml-1 animate-pulse">New</Badge>
+              </Button>
             </Link>
-            <Link 
-              to="/profile" 
-              className={`flex items-center space-x-1 transition-colors ${
-                isActive('/profile') 
-                  ? 'text-blue-600' 
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <User className="h-4 w-4" />
-              <span>Profile</span>
+            
+            <Link to="/help">
+              <Button 
+                variant={isActive('/help') ? "default" : "ghost"}
+                className="flex items-center space-x-2"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span>Help</span>
+              </Button>
             </Link>
           </nav>
-          
-          <Link 
-            to="/signin"
-            className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-green-700 transition-all transform hover:scale-105"
-          >
-            Sign In
-          </Link>
+
+          <div className="flex items-center space-x-2">
+            <Link to="/profile">
+              <Button 
+                variant={isActive('/profile') ? "default" : "ghost"}
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Profile</span>
+              </Button>
+            </Link>
+            
+            <Link to="/signin">
+              <Button 
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <LogIn className="h-4 w-4" />
+                <span>Sign In</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </header>
