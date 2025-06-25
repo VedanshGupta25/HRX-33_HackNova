@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
 import { InputSection } from '@/components/InputSection';
@@ -7,9 +6,13 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ProgressDisplay } from '@/components/ProgressDisplay';
 import { RewardNotification } from '@/components/RewardNotification';
 import { VoiceCommands } from '@/components/VoiceCommands';
+import { GuideModal } from '@/components/GuideModal';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useGamification } from '@/hooks/useGamification';
 import { GeminiApiService, type TaskGenerationRequest } from '@/utils/geminiApi';
+import { BookOpen, Sparkles } from 'lucide-react';
 
 const Tasks = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +24,7 @@ const Tasks = () => {
   const [activeTask, setActiveTask] = useState<string | null>(null);
   const [taskTimers, setTaskTimers] = useState<{[key: string]: { startTime: Date, duration: number }}>({});
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
+  const [showGuide, setShowGuide] = useState(false);
   const { toast } = useToast();
   const { userProgress, completeTask, useVoiceCommand, getXpForNextLevel } = useGamification();
 
@@ -269,22 +273,45 @@ const Tasks = () => {
     useVoiceCommand();
   };
 
+  const handleGuideRating = (rating: number) => {
+    toast({
+      title: "Thanks for your feedback! ⭐",
+      description: `You rated the guide ${rating} star${rating > 1 ? 's' : ''}. This helps us improve!`,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Theme Toggle and Guide Button */}
+          <div className="flex justify-end gap-2 mb-4">
+            <Button
+              onClick={() => setShowGuide(true)}
+              variant="outline"
+              size="sm"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-none transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Learning Guide</span>
+              <span className="sm:hidden">Guide</span>
+              <Sparkles className="h-3 w-3 ml-1 animate-pulse" />
+            </Button>
+            <ThemeToggle />
+          </div>
+
           <ProgressDisplay 
             userProgress={userProgress}
             getXpForNextLevel={getXpForNextLevel}
           />
 
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4 transition-colors duration-300">
               Learning Tasks
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto transition-colors duration-300">
               Generate personalized learning tasks and earn rewards for your progress
             </p>
           </div>
@@ -325,6 +352,12 @@ const Tasks = () => {
           onClose={() => setShowRewards(false)}
         />
       )}
+
+      <GuideModal
+        isOpen={showGuide}
+        onClose={() => setShowGuide(false)}
+        onRate={handleGuideRating}
+      />
     </div>
   );
 };
