@@ -17,7 +17,7 @@ export interface GeminiChatRequest {
 }
 
 export class GeminiChatService {
-  private static readonly BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+  private static readonly BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
   static async sendMessage(
     message: string, 
@@ -58,7 +58,9 @@ export class GeminiChatService {
       });
 
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Gemini API error:', response.status, errorText);
+        throw new Error(`Gemini API error: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();

@@ -134,18 +134,22 @@ const Tasks = () => {
       return;
     }
 
+    // Extract numeric duration from estimatedTime string
+    const durationMatch = duration.toString().match(/(\d+)/);
+    const durationMinutes = durationMatch ? parseInt(durationMatch[1]) : 30;
+
     setActiveTask(taskId);
     setTaskTimers(prev => ({
       ...prev,
       [taskId]: {
         startTime: new Date(),
-        duration: duration * 60 // Convert minutes to seconds
+        duration: durationMinutes * 60 // Convert minutes to seconds
       }
     }));
 
     toast({
       title: "Task Started! ⏰",
-      description: `Timer started for "${taskTitle}". You have ${duration} minutes to complete it.`,
+      description: `Timer started for "${taskTitle}". You have ${durationMinutes} minutes to complete it.`,
     });
   };
 
