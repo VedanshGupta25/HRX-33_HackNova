@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +17,9 @@ import {
   Code,
   BookOpen,
   Timer,
-  StopCircle
+  StopCircle,
+  Trophy,
+  Target
 } from 'lucide-react';
 
 interface Task {
@@ -34,7 +37,7 @@ interface Task {
 interface TaskDisplayProps {
   tasks: Task[];
   onTaskStart?: (taskId: string, taskTitle: string, duration: number) => void;
-  onTaskComplete?: (taskId: string, taskTitle: string) => void;
+  onTaskEnd?: (taskId: string, taskTitle: string) => void;
   activeTask?: string | null;
   taskTimers?: {[key: string]: { startTime: Date, duration: number }};
   completedTasks?: Set<string>;
@@ -43,7 +46,7 @@ interface TaskDisplayProps {
 export const TaskDisplay: React.FC<TaskDisplayProps> = ({ 
   tasks, 
   onTaskStart,
-  onTaskComplete,
+  onTaskEnd,
   activeTask,
   taskTimers = {},
   completedTasks = new Set()
@@ -65,8 +68,8 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
         // Auto-complete if time runs out
         if (remaining === 0 && activeTask === taskId && !completedTasks.has(taskId)) {
           const task = tasks.find(t => t.id === taskId);
-          if (task && onTaskComplete) {
-            onTaskComplete(taskId, task.title);
+          if (task && onTaskEnd) {
+            onTaskEnd(taskId, task.title);
           }
         }
       });
@@ -75,7 +78,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [taskTimers, activeTask, completedTasks, tasks, onTaskComplete]);
+  }, [taskTimers, activeTask, completedTasks, tasks, onTaskEnd]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -110,485 +113,191 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
     }
   };
 
-  const getTaskHints = (difficulty: string, type: string) => {
-    const hints = {
-      beginner: {
-        reading: ["Start with basic concepts", "Take notes while reading", "Look up unfamiliar terms"],
-        exercise: ["Follow step-by-step instructions", "Practice multiple times", "Ask for help when stuck"],
-        project: ["Break into small tasks", "Use templates provided", "Focus on learning over perfection"]
-      },
-      intermediate: {
-        reading: ["Connect concepts to prior knowledge", "Analyze examples critically", "Research additional sources"],
-        exercise: ["Try variations of problems", "Understand the why behind solutions", "Time yourself for efficiency"],
-        project: ["Plan before coding", "Implement core features first", "Document your process"]
-      },
-      advanced: {
-        reading: ["Question assumptions in the material", "Compare different approaches", "Identify real-world applications"],
-        exercise: ["Optimize for performance", "Handle edge cases", "Create your own test cases"],
-        project: ["Design scalable architecture", "Consider user experience", "Implement best practices"]
-      }
-    };
-    
-    return hints[difficulty.toLowerCase() as keyof typeof hints]?.[type.toLowerCase() as keyof typeof hints.beginner] || [];
-  };
-
-  const getTemplate = (difficulty: string, type: string) => {
+  const getStepByStepTemplate = (difficulty: string, type: string) => {
     const templates = {
       beginner: {
-        reading: `📚 Step-by-Step Reading Guide:
-1. PREVIEW (5 mins)
-   - Scan headings and subheadings
-   - Look at images, diagrams, and captions
-   - Read the introduction and conclusion first
-   - Identify key terms in bold or italics
-
-2. ACTIVE READING (Main Time)
-   - Read one section at a time
-   - Stop after each paragraph to summarize in your own words
-   - Take notes using bullet points
-   - Ask yourself: "What is the main idea here?"
-   - Write down any questions that come up
-
-3. NOTE-TAKING TEMPLATE:
-   Topic: _______________
-   Main Ideas:
-   • Point 1: ________________
-   • Point 2: ________________
-   • Point 3: ________________
-   
-   Key Terms:
-   • Term 1: Definition
-   • Term 2: Definition
-   
-   Questions I Have:
-   • Question 1: ________________
-   • Question 2: ________________
-
-4. REVIEW & REFLECT (5 mins)
-   - Summarize the entire reading in 2-3 sentences
-   - Connect to what you already know
-   - Identify what you want to learn more about
-
-💡 Pro Tips:
-- Read in a quiet environment
-- Take breaks every 15-20 minutes
-- Use highlighters for key concepts
-- Don't try to memorize everything - focus on understanding`,
-
-        exercise: `💻 Exercise Completion Framework:
-1. SETUP PHASE (5 mins)
-   - Read all instructions twice before starting
-   - Gather all necessary tools/software
-   - Create a workspace (folder, files, etc.)
-   - Set up your development environment
-
-2. UNDERSTANDING PHASE (10 mins)
-   - Break down the problem into smaller parts
-   - Identify what you need to achieve
-   - Look at any provided examples
-   - Write down the steps in plain English
-
-3. IMPLEMENTATION CHECKLIST:
-   □ Start with the basics - get something working first
-   □ Test each small part before moving on
-   □ Follow the examples provided
-   □ Don't skip steps - do them in order
-   □ Save your work frequently
-   □ Comment your code/work as you go
-
-4. TESTING TEMPLATE:
-   Test Case 1: Expected _____ Got _____
-   Test Case 2: Expected _____ Got _____
-   Test Case 3: Expected _____ Got _____
-
-5. TROUBLESHOOTING STEPS:
-   - Read error messages carefully
-   - Check spelling and syntax
-   - Compare with provided examples
-   - Try the simplest version first
-   - Ask for help if stuck for more than 15 minutes
-
-6. COMPLETION CHECKLIST:
-   □ Does it work as expected?
-   □ Did I test different scenarios?
-   □ Is my code/work clean and organized?
-   □ Can I explain what I did?
-
-🎯 Success Metrics:
-- Working solution ✓
-- Understanding the process ✓
-- Ability to reproduce it ✓`,
-
-        project: `🏗️ Beginner Project Blueprint:
-1. PLANNING PHASE (15 mins)
-   - Read project requirements 3 times
-   - List all deliverables needed
-   - Break project into 5-7 small tasks
-   - Estimate time for each task
-   - Identify what you don't know yet
-
-2. PROJECT BREAKDOWN TEMPLATE:
-   Project Goal: _______________
-   
-   Task 1: _______________  (Est: ___ mins)
-   Task 2: _______________  (Est: ___ mins)
-   Task 3: _______________  (Est: ___ mins)
-   Task 4: _______________  (Est: ___ mins)
-   Task 5: _______________  (Est: ___ mins)
-   
-   Learning Goals:
-   • What new skill will I gain?
-   • What concept will I understand better?
-
-3. IMPLEMENTATION STRATEGY:
-   - Start with the simplest part first
-   - Get one piece working before moving on
-   - Use provided templates and examples
-   - Don't try to make it perfect - make it work first
-   - Save versions as you progress (v1, v2, v3)
-
-4. QUALITY CHECKLIST:
-   □ Meets minimum requirements
-   □ Works without errors
-   □ Includes all required components
-   □ Has been tested with different inputs
-   □ Documentation/comments explain the work
-
-5. PRESENTATION PREP:
-   - Can you demo it working?
-   - Can you explain your approach?
-   - What would you do differently next time?
-   - What was the most challenging part?
-
-📋 Deliverables:
-- Working project files
-- Brief explanation of approach
-- List of challenges and solutions
-- Reflection on learning outcomes
-
-🌟 Remember: Focus on learning over perfection!`
-      },
-      intermediate: {
-        reading: `📖 Advanced Reading Strategy:
-1. STRATEGIC PREVIEW (10 mins)
-   - Analyze the structure and flow
-   - Identify the author's main arguments
-   - Look for supporting evidence and examples
-   - Note methodology or approach used
-
-2. ANALYTICAL READING PROCESS:
-   - Read with specific questions in mind
-   - Challenge assumptions and conclusions
-   - Connect ideas across different sections
-   - Evaluate the strength of arguments
-   - Compare with other sources you know
-
-3. ADVANCED NOTE-TAKING:
-   Argument Map:
-   Main Thesis: _______________
-   Supporting Evidence:
-   • Evidence 1: _______________
-     - Strength: _______________
-     - Weakness: _______________
-   • Evidence 2: _______________
-     - Strength: _______________
-     - Weakness: _______________
-   
-   Critical Questions:
-   • What assumptions is the author making?
-   • What evidence would strengthen this argument?
-   • How does this connect to [related topic]?
-   • What are the practical implications?
-
-4. SYNTHESIS & APPLICATION:
-   - How can you apply these concepts?
-   - What questions remain unanswered?
-   - How does this change your understanding?
-   - What would you research next?
-
-🎯 Advanced Techniques:
-- Create concept maps linking ideas
-- Write counter-arguments to strengthen understanding
-- Research additional sources for comparison
-- Prepare to teach the concept to someone else`,
-
-        exercise: `⚡ Intermediate Problem-Solving Framework:
-1. PROBLEM ANALYSIS (15 mins)
-   - Understand the problem deeply
-   - Identify constraints and requirements
-   - Research best practices and approaches
-   - Plan your solution architecture
-
-2. SOLUTION DESIGN:
-   Problem Breakdown:
-   • Core challenge: _______________
-   • Sub-problems: _______________
-   • Dependencies: _______________
-   • Success criteria: _______________
-   
-   Approach Options:
-   Option A: _______________
-   Pros: _______________
-   Cons: _______________
-   
-   Option B: _______________
-   Pros: _______________
-   Cons: _______________
-   
-   Chosen Approach: _______________
-   Reasoning: _______________
-
-3. IMPLEMENTATION STRATEGY:
-   - Build incrementally with testing
-   - Optimize for readability first
-   - Handle edge cases systematically
-   - Document complex logic
-   - Measure performance where relevant
-
-4. VALIDATION FRAMEWORK:
-   Test Categories:
-   □ Basic functionality tests
-   □ Edge case scenarios
-   □ Performance benchmarks
-   □ User experience validation
-   □ Integration compatibility
-
-5. OPTIMIZATION PHASE:
-   - Profile performance bottlenecks
-   - Refactor for maintainability
-   - Add comprehensive error handling
-   - Enhance user feedback mechanisms
-
-💡 Professional Practices:
-- Code review your own work
-- Write tests before optimizing
-- Document your decision-making process
-- Consider scalability implications`,
-
-        project: `🚀 Intermediate Project Management:
-1. REQUIREMENTS ANALYSIS (20 mins)
-   - Define functional requirements
-   - Identify non-functional requirements
-   - Analyze user stories or use cases
-   - Plan technical architecture
-   - Assess risks and mitigation strategies
-
-2. PROJECT ARCHITECTURE:
-   System Design:
-   • Core components: _______________
-   • Data flow: _______________
-   • External dependencies: _______________
-   • Technology stack: _______________
-   
-   Implementation Phases:
-   Phase 1 - MVP: _______________
-   Phase 2 - Core Features: _______________
-   Phase 3 - Enhancement: _______________
-   Phase 4 - Polish: _______________
-
-3. DEVELOPMENT WORKFLOW:
-   - Set up version control with meaningful commits
-   - Implement feature branches for major components
-   - Write tests for critical functionality
-   - Regular code reviews and refactoring
-   - Continuous integration and testing
-
-4. QUALITY ASSURANCE:
-   Code Quality Checklist:
-   □ Follows established coding standards
-   □ Includes comprehensive error handling
-   □ Has appropriate documentation
-   □ Passes all test cases
-   □ Performs well under expected load
-   □ Handles security considerations
-
-5. DEPLOYMENT & DOCUMENTATION:
-   - Prepare deployment scripts/configurations
-   - Create user documentation
-   - Write technical documentation
-   - Plan maintenance and updates
-   - Gather feedback for improvements
-
-📊 Success Metrics:
-- Meets all functional requirements
-- Maintains good performance
-- Includes proper error handling
-- Has comprehensive documentation
-- Demonstrates best practices`
-      },
-      advanced: {
-        reading: `🧠 Expert-Level Critical Analysis:
-1. CONTEXTUAL ANALYSIS (15 mins)
-   - Research author's background and perspective
-   - Understand historical/cultural context
-   - Identify theoretical frameworks used
-   - Analyze intended audience and purpose
-
-2. CRITICAL EVALUATION FRAMEWORK:
-   Methodology Assessment:
-   • Research methods: _______________
-   • Data quality: _______________
-   • Statistical significance: _______________
-   • Potential biases: _______________
-   
-   Argument Structure:
-   • Logical consistency: _______________
-   • Evidence quality: _______________
-   • Counter-arguments addressed: _______________
-   • Generalizability: _______________
-
-3. COMPARATIVE ANALYSIS:
-   Compare with seminal works:
-   • How does this advance the field?
-   • What gaps does it address?
-   • Where does it align/differ from consensus?
-   • What new questions does it raise?
-
-4. INNOVATION IDENTIFICATION:
-   - Novel approaches or methodologies
-   - Paradigm shifts or breakthrough insights
-   - Practical applications and implications
-   - Future research directions suggested
-
-5. SYNTHESIS & CONTRIBUTION:
-   - Integrate with existing knowledge base
-   - Identify actionable insights
-   - Develop original perspectives
-   - Plan follow-up research or application
-
-🔬 Advanced Techniques:
-- Meta-analysis of multiple sources
-- Interdisciplinary connections
-- Original hypothesis generation
-- Policy or practice recommendations`,
-
-        exercise: `🔬 Advanced Problem-Solving Methodology:
-1. COMPREHENSIVE PROBLEM MODELING (20 mins)
-   - Define problem space and boundaries
-   - Model system interactions and dependencies
-   - Identify optimization criteria
-   - Analyze computational complexity
-   - Research state-of-the-art solutions
-
-2. MULTI-APPROACH DESIGN:
-   Algorithm Design:
-   • Time complexity target: _______________
-   • Space complexity constraints: _______________
-   • Scalability requirements: _______________
-   • Fault tolerance needs: _______________
-   
-   Solution Alternatives:
-   Approach 1: _______________
-   Trade-offs: _______________
-   Use cases: _______________
-   
-   Approach 2: _______________
-   Trade-offs: _______________
-   Use cases: _______________
-   
-   Hybrid Approach: _______________
-   Optimization strategy: _______________
-
-3. IMPLEMENTATION EXCELLENCE:
-   - Implement multiple algorithms for comparison
-   - Create comprehensive test suites
-   - Build performance benchmarking tools
-   - Design for extensibility and maintenance
-   - Include detailed logging and monitoring
-
-4. ADVANCED VALIDATION:
-   Testing Strategy:
-   □ Unit tests with 100% coverage
-   □ Integration tests for system interactions
-   □ Load testing under various conditions
-   □ Chaos engineering for resilience
-   □ Security vulnerability assessment
-   □ Usability testing with real users
-
-5. OPTIMIZATION & INNOVATION:
-   - Profile and optimize critical paths
-   - Implement advanced algorithms/data structures
-   - Design novel solutions for unique constraints
-   - Contribute to open source or research community
-
-🏆 Excellence Standards:
-- Publishable quality implementation
-- Comprehensive documentation and examples
-- Reusable components and libraries
-- Performance benchmarks and comparisons
-- Novel contributions to the field`,
-
-        project: `🏆 Professional-Grade Project Development:
-1. STRATEGIC PROJECT DESIGN (30 mins)
-   - Conduct stakeholder analysis
-   - Define success metrics and KPIs
-   - Create technical specification document
-   - Design system architecture and APIs
-   - Plan scalability and security from the start
-
-2. ENTERPRISE ARCHITECTURE:
-   System Design Document:
-   • Microservices architecture: _______________
-   • Database design: _______________
-   • API specifications: _______________
-   • Security framework: _______________
-   • Monitoring and logging: _______________
-   • Deployment strategy: _______________
-   
-   Technology Stack Justification:
-   • Frontend: _______________
-   • Backend: _______________
-   • Database: _______________
-   • Infrastructure: _______________
-   • Reasoning for each choice: _______________
-
-3. PROFESSIONAL DEVELOPMENT PROCESS:
-   - Implement CI/CD pipeline
-   - Use infrastructure as code
-   - Implement comprehensive testing strategy
-   - Set up monitoring and alerting
-   - Plan disaster recovery procedures
-   - Document everything thoroughly
-
-4. QUALITY ASSURANCE FRAMEWORK:
-   Code Standards:
-   □ Follows industry best practices
-   □ Implements design patterns appropriately
-   □ Includes comprehensive error handling
-   □ Has 90%+ test coverage
-   □ Passes security audits
-   □ Meets performance benchmarks
-   □ Includes accessibility features
-   □ Supports internationalization
-
-5. PRODUCTION DEPLOYMENT:
-   Launch Checklist:
-   □ Load testing completed
-   □ Security penetration testing passed
-   □ Backup and recovery procedures tested
-   □ Monitoring dashboards configured
-   □ Documentation completed
-   □ Team training conducted
-   □ Rollback procedures defined
-   □ Post-launch support plan ready
-
-6. CONTINUOUS IMPROVEMENT:
-   - Implement user feedback collection
-   - Set up A/B testing framework
-   - Plan feature roadmap based on metrics
-   - Contribute learnings back to community
-   - Mentor others on project insights
-
-🎯 Professional Excellence:
-- Production-ready, scalable solution
-- Comprehensive documentation and training
-- Measurable business impact
-- Industry best practices demonstrated
-- Knowledge sharing and mentorship`
+        reading: {
+          title: "📚 Beginner Reading Guide",
+          steps: [
+            {
+              step: "PREVIEW PHASE",
+              duration: "5 minutes",
+              description: "Get an overview before diving in",
+              actions: [
+                "Scan all headings and subheadings",
+                "Look at images, diagrams, and captions", 
+                "Read the introduction and conclusion first",
+                "Identify key terms highlighted in bold or italics"
+              ],
+              tip: "This gives you a mental roadmap of what you'll learn!"
+            },
+            {
+              step: "ACTIVE READING",
+              duration: "Main reading time",
+              description: "Engage with the content actively",
+              actions: [
+                "Read one section at a time, don't rush",
+                "Stop after each paragraph and summarize in your head",
+                "Take notes using bullet points (not full sentences)",
+                "Ask yourself: 'What is the main point here?'",
+                "Write down questions that come to mind"
+              ],
+              tip: "Reading actively helps you remember 3x better than passive reading"
+            },
+            {
+              step: "NOTE-TAKING TEMPLATE",
+              duration: "Throughout reading",
+              description: "Organize your understanding",
+              actions: [
+                "Topic: [Write the main topic]",
+                "Main Ideas: • Point 1 • Point 2 • Point 3",
+                "Key Terms: • Term: Definition • Term: Definition",
+                "My Questions: • What confuses me? • What would I like to know more about?"
+              ],
+              tip: "Good notes are your best study companion later!"
+            },
+            {
+              step: "REVIEW & REFLECT",  
+              duration: "5 minutes",
+              description: "Consolidate your learning",
+              actions: [
+                "Summarize the entire reading in 2-3 sentences",
+                "Connect new information to what you already know",
+                "Identify what you want to explore further",
+                "Rate your understanding from 1-10"
+              ],
+              tip: "This step transforms information into real knowledge!"
+            }
+          ]
+        },
+        exercise: {
+          title: "💻 Beginner Exercise Framework",
+          steps: [
+            {
+              step: "SETUP PHASE",
+              duration: "5 minutes", 
+              description: "Prepare your workspace",
+              actions: [
+                "Read ALL instructions twice before starting",
+                "Gather necessary tools, software, or materials",
+                "Create a clean workspace (folders, files, etc.)",
+                "Have a notepad ready for writing down thoughts"
+              ],
+              tip: "Good preparation prevents poor performance!"
+            },
+            {
+              step: "UNDERSTANDING PHASE",
+              duration: "10 minutes",
+              description: "Break down the problem",
+              actions: [
+                "Break the exercise into smaller, manageable parts",
+                "Identify what you need to achieve (the end goal)",
+                "Look at any provided examples carefully",
+                "Write down the steps in plain English first"
+              ],
+              tip: "Understanding the problem is half the solution!"
+            },
+            {
+              step: "IMPLEMENTATION",
+              duration: "Main work time",
+              description: "Build your solution step by step",
+              actions: [
+                "Start with the simplest version that works",
+                "Test each small part before moving to the next",
+                "Follow examples provided - don't skip steps",
+                "Save your work frequently (every 10 minutes)",
+                "Add comments explaining what you're doing"
+              ],
+              tip: "Build incrementally - small steps lead to big results!"
+            },
+            {
+              step: "TESTING & DEBUGGING",
+              duration: "15 minutes",
+              description: "Make sure everything works",
+              actions: [
+                "Test with the provided examples first",
+                "Try edge cases (empty inputs, large numbers, etc.)",
+                "Read error messages carefully - they often tell you exactly what's wrong",
+                "Compare your solution with any provided examples",
+                "Ask for help if stuck for more than 15 minutes"
+              ],
+              tip: "Every expert was once a beginner who asked good questions!"
+            }
+          ]
+        },
+        project: {
+          title: "🏗️ Beginner Project Blueprint",
+          steps: [
+            {
+              step: "PLANNING PHASE",
+              duration: "15 minutes",
+              description: "Plan before you build",
+              actions: [
+                "Read project requirements 3 times",
+                "List all features/components needed",
+                "Break the project into 5-7 small tasks",
+                "Estimate time for each task",
+                "Identify what you don't know yet (research list)"
+              ],
+              tip: "15 minutes of planning saves hours of confusion!"
+            },
+            {
+              step: "RESEARCH & LEARNING",
+              duration: "20 minutes", 
+              description: "Fill knowledge gaps",
+              actions: [
+                "Look up concepts you don't understand",
+                "Find 2-3 similar project examples online",
+                "Watch a tutorial video if available",
+                "Bookmark helpful resources for later"
+              ],
+              tip: "Standing on the shoulders of giants makes you taller!"
+            },
+            {
+              step: "BUILD PHASE 1 - BASIC VERSION",
+              duration: "40% of time",
+              description: "Get something working first",
+              actions: [
+                "Start with the simplest possible version",
+                "Focus on core functionality only",
+                "Don't worry about making it pretty yet",
+                "Test frequently as you build",
+                "Save versions as you progress (v1, v2, v3)"
+              ],
+              tip: "Done is better than perfect - you can always improve later!"
+            },
+            {
+              step: "BUILD PHASE 2 - ENHANCEMENTS",
+              duration: "40% of time",
+              description: "Add features and polish",
+              actions: [
+                "Add one feature at a time",
+                "Test after each addition",
+                "Improve the visual design",
+                "Add error handling",
+                "Get feedback from others if possible"
+              ],
+              tip: "Each small improvement compounds into something amazing!"
+            },
+            {
+              step: "FINALIZATION & REFLECTION",
+              duration: "20% of time",
+              description: "Polish and learn from the experience",
+              actions: [
+                "Test everything one final time",
+                "Clean up your code/work",
+                "Write a brief summary of what you learned",
+                "Note what you'd do differently next time",
+                "Celebrate your accomplishment! 🎉"
+              ],
+              tip: "Reflection turns experience into wisdom!"
+            }
+          ]
+        }
       }
     };
-    
-    return templates[difficulty.toLowerCase() as keyof typeof templates]?.[type.toLowerCase() as keyof typeof templates.beginner] || "Template not available";
+
+    return templates[difficulty.toLowerCase() as keyof typeof templates]?.[type.toLowerCase() as keyof typeof templates.beginner] || null;
   };
 
   const handleRating = (taskId: string, rating: number) => {
@@ -602,8 +311,8 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`h-4 w-4 cursor-pointer transition-colors ${
-              star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+            className={`h-4 w-4 cursor-pointer transition-all duration-200 hover:scale-110 ${
+              star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 hover:text-yellow-200'
             }`}
             onClick={() => handleRating(taskId, star)}
           />
@@ -619,9 +328,9 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
     }
   };
 
-  const handleTaskComplete = (task: Task) => {
-    if (onTaskComplete) {
-      onTaskComplete(task.id, task.title);
+  const handleTaskEnd = (task: Task) => {
+    if (onTaskEnd) {
+      onTaskEnd(task.id, task.title);
     }
   };
 
@@ -635,6 +344,9 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
 
   const difficultyOrder = ['beginner', 'intermediate', 'advanced'];
 
+  // Get completed tasks for display
+  const completedTasksList = tasks.filter(task => completedTasks.has(task.id));
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="text-center">
@@ -646,6 +358,35 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
         </p>
       </div>
 
+      {/* Completed Tasks Section */}
+      {completedTasksList.length > 0 && (
+        <div className="mb-8 animate-scale-in">
+          <div className="flex items-center gap-3 mb-4">
+            <Trophy className="h-6 w-6 text-yellow-500" />
+            <h3 className="text-xl font-semibold text-gray-800">Completed Tasks ({completedTasksList.length})</h3>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {completedTasksList.map((task, index) => (
+              <Card key={task.id} className="bg-green-50 border-green-200 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="font-medium text-green-800">{task.title}</span>
+                  </div>
+                  <p className="text-sm text-green-600">{task.description}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <Badge className="bg-green-100 text-green-800 border-green-200">
+                      {task.difficulty}
+                    </Badge>
+                    <span className="text-xs text-green-600">✅ Completed</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {difficultyOrder.map((difficulty, levelIndex) => {
         const levelTasks = groupedTasks[difficulty] || [];
         if (levelTasks.length === 0) return null;
@@ -653,11 +394,11 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
         return (
           <div 
             key={difficulty}
-            className="space-y-4"
+            className="space-y-4 animate-fade-in"
             style={{ animationDelay: `${levelIndex * 300}ms` }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className={`px-4 py-2 rounded-full bg-gradient-to-r ${getDifficultyGradient(difficulty)} text-white font-semibold text-lg shadow-lg`}>
+              <div className={`px-4 py-2 rounded-full bg-gradient-to-r ${getDifficultyGradient(difficulty)} text-white font-semibold text-lg shadow-lg transform hover:scale-105 transition-all duration-300`}>
                 Level {levelIndex + 1}: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
               </div>
               <div className="flex-1 h-1 bg-gradient-to-r from-gray-200 to-transparent rounded"></div>
@@ -668,9 +409,9 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                 <Card 
                   key={task.id}
                   className={`group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 bg-white/95 backdrop-blur-sm border-0 shadow-lg overflow-hidden ${
-                    completedTasks.has(task.id) ? 'ring-2 ring-green-400' : ''
+                    completedTasks.has(task.id) ? 'ring-2 ring-green-400 bg-green-50/50' : ''
                   } ${
-                    activeTask === task.id ? 'ring-2 ring-blue-400 animate-pulse' : ''
+                    activeTask === task.id ? 'ring-2 ring-blue-400 animate-pulse shadow-blue-200' : ''
                   }`}
                   style={{ animationDelay: `${(levelIndex * 300) + (taskIndex * 150)}ms` }}
                 >
@@ -679,7 +420,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                     
                     {/* Timer Display */}
                     {activeTask === task.id && timeRemaining[task.id] !== undefined && (
-                      <div className="absolute top-4 right-4 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 animate-pulse">
                         <Timer className="h-3 w-3" />
                         {formatTime(timeRemaining[task.id])}
                       </div>
@@ -687,7 +428,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
 
                     {/* Completion Badge */}
                     {completedTasks.has(task.id) && (
-                      <div className="absolute top-4 right-4 bg-green-600 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 animate-bounce">
                         <CheckCircle className="h-3 w-3" />
                         Completed
                       </div>
@@ -698,12 +439,12 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                         {getTypeIcon(task.type)}
                         <span className="text-sm font-medium">{task.type}</span>
                       </div>
-                      <Badge className={`${getDifficultyColor(task.difficulty)} border text-xs`}>
+                      <Badge className={`${getDifficultyColor(task.difficulty)} border text-xs transition-all duration-300 hover:scale-105`}>
                         {task.difficulty}
                       </Badge>
                     </div>
 
-                    <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                    <CardTitle className="text-lg group-hover:text-blue-600 transition-colors duration-300">
                       {task.title}
                     </CardTitle>
                     <CardDescription className="text-gray-600 leading-relaxed">
@@ -728,8 +469,11 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                       <div className="mt-3">
                         <Progress 
                           value={((taskTimers[task.id].duration - timeRemaining[task.id]) / taskTimers[task.id].duration) * 100}
-                          className="h-2"
+                          className="h-3 transition-all duration-1000"
                         />
+                        <div className="text-xs text-center mt-1 text-gray-600">
+                          {Math.round(((taskTimers[task.id].duration - timeRemaining[task.id]) / taskTimers[task.id].duration) * 100)}% Complete
+                        </div>
                       </div>
                     )}
 
@@ -746,15 +490,15 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                         <>
                           {activeTask === task.id ? (
                             <Button 
-                              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg text-white transition-all transform hover:scale-105"
-                              onClick={() => handleTaskComplete(task)}
+                              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg text-white transition-all transform hover:scale-105 duration-300"
+                              onClick={() => handleTaskEnd(task)}
                             >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Complete
+                              <StopCircle className="h-4 w-4 mr-1" />
+                              End Task
                             </Button>
                           ) : (
                             <Button 
-                              className={`bg-gradient-to-r ${getDifficultyGradient(difficulty)} hover:shadow-lg text-white transition-all transform hover:scale-105`}
+                              className={`bg-gradient-to-r ${getDifficultyGradient(difficulty)} hover:shadow-lg text-white transition-all transform hover:scale-105 duration-300`}
                               onClick={() => handleTaskStart(task)}
                               disabled={activeTask !== null && activeTask !== task.id}
                             >
@@ -764,50 +508,98 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                           )}
                         </>
                       ) : (
-                        <div className="col-span-2 flex items-center justify-center py-2 bg-green-50 rounded-lg text-green-700 font-semibold">
+                        <div className="col-span-2 flex items-center justify-center py-3 bg-green-50 rounded-lg text-green-700 font-semibold border border-green-200">
                           <CheckCircle className="h-4 w-4 mr-2" />
-                          Task Completed!
+                          Task Completed! 🎉
                         </div>
                       )}
                       
                       <Button 
                         variant="outline"
                         onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
-                        className="border-gray-300 hover:bg-gray-50"
+                        className="border-gray-300 hover:bg-gray-50 transition-all duration-300 hover:scale-105"
                       >
-                        {expandedTask === task.id ? 'Hide' : 'Guide'}
+                        {expandedTask === task.id ? (
+                          <>
+                            <ChevronUp className="h-4 w-4 mr-1" />
+                            Hide Guide
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4 mr-1" />
+                            Show Guide
+                          </>
+                        )}
                       </Button>
                     </div>
 
-                    {/* Expandable Content */}
+                    {/* Expandable Content with Enhanced Step-by-Step Guide */}
                     <Collapsible open={expandedTask === task.id}>
                       <CollapsibleContent className="space-y-4 animate-accordion-down">
-                        {/* Hints Section */}
-                        <div className="bg-blue-50 rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Lightbulb className="h-4 w-4 text-blue-600" />
-                            <h4 className="font-semibold text-blue-800">Helpful Hints</h4>
-                          </div>
-                          <ul className="space-y-1">
-                            {getTaskHints(task.difficulty, task.type).map((hint, index) => (
-                              <li key={index} className="text-sm text-blue-700 flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0"></span>
-                                {hint}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                        {(() => {
+                          const template = getStepByStepTemplate(task.difficulty, task.type);
+                          if (!template) return null;
 
-                        {/* Template Section */}
-                        <div className="bg-green-50 rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Code className="h-4 w-4 text-green-600" />
-                            <h4 className="font-semibold text-green-800">Step-by-Step Template Guide</h4>
-                          </div>
-                          <pre className="text-sm text-green-700 whitespace-pre-wrap font-mono bg-white/50 p-3 rounded border max-h-96 overflow-y-auto">
-                            {getTemplate(task.difficulty, task.type)}
-                          </pre>
-                        </div>
+                          return (
+                            <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl p-6 border border-blue-200">
+                              <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg">
+                                  <Target className="h-5 w-5 text-white" />
+                                </div>
+                                <h4 className="text-xl font-bold text-gray-800">{template.title}</h4>
+                              </div>
+                              
+                              <div className="space-y-6">
+                                {template.steps.map((step, index) => (
+                                  <div 
+                                    key={index} 
+                                    className="bg-white/80 backdrop-blur-sm rounded-lg p-5 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in border-l-4 border-blue-400"
+                                    style={{ animationDelay: `${index * 200}ms` }}
+                                  >
+                                    <div className="flex items-center gap-3 mb-3">
+                                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-full text-white font-bold text-sm">
+                                        {index + 1}
+                                      </div>
+                                      <div>
+                                        <h5 className="font-bold text-gray-800 text-lg">{step.step}</h5>
+                                        <span className="text-sm text-blue-600 font-medium">⏱️ {step.duration}</span>
+                                      </div>
+                                    </div>
+                                    
+                                    <p className="text-gray-700 mb-4 font-medium">{step.description}</p>
+                                    
+                                    <div className="space-y-2 mb-4">
+                                      {step.actions.map((action, actionIndex) => (
+                                        <div key={actionIndex} className="flex items-start gap-3 p-2 bg-blue-50 rounded-lg">
+                                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                          <span className="text-gray-700 text-sm">{action}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                      <div className="flex items-center gap-2">
+                                        <Lightbulb className="h-4 w-4 text-yellow-600" />
+                                        <span className="font-semibold text-yellow-800 text-sm">Pro Tip:</span>
+                                      </div>
+                                      <p className="text-yellow-700 text-sm mt-1">{step.tip}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              <div className="mt-6 p-4 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg border border-green-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <CheckCircle className="h-5 w-5 text-green-600" />
+                                  <span className="font-bold text-green-800">Success Formula</span>
+                                </div>
+                                <p className="text-green-700 text-sm">
+                                  Follow each step at your own pace. Quality over speed - it's better to understand deeply than to rush through!
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </CollapsibleContent>
                     </Collapsible>
                   </CardContent>
@@ -819,8 +611,12 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
       })}
 
       {Object.keys(groupedTasks).length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No tasks generated yet. Enter a topic above to get started!</p>
+        <div className="text-center py-12 animate-fade-in">
+          <div className="mb-4">
+            <BookOpen className="h-16 w-16 text-gray-400 mx-auto" />
+          </div>
+          <p className="text-gray-500 text-lg">No tasks generated yet.</p>
+          <p className="text-gray-400">Enter a topic above to get started on your learning journey!</p>
         </div>
       )}
     </div>

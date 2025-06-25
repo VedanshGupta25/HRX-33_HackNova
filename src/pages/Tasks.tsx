@@ -105,10 +105,30 @@ const Tasks = () => {
   };
 
   const handleTaskStart = (taskId: string, taskTitle: string, duration: number) => {
-    if (completedTasks.has(taskId) || activeTask === taskId) {
+    console.log('Starting task:', { taskId, taskTitle, duration });
+    
+    if (completedTasks.has(taskId)) {
       toast({
-        title: "Task Already Started",
-        description: "This task is already in progress or completed.",
+        title: "Task Already Completed",
+        description: "This task has already been completed and cannot be restarted.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (activeTask === taskId) {
+      toast({
+        title: "Task Already Active",
+        description: "This task is already in progress.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (activeTask) {
+      toast({
+        title: "Another Task Active",
+        description: "Please complete or end the current task before starting a new one.",
         variant: "destructive"
       });
       return;
@@ -129,7 +149,9 @@ const Tasks = () => {
     });
   };
 
-  const handleTaskComplete = (taskId: string, taskTitle: string) => {
+  const handleTaskEnd = (taskId: string, taskTitle: string) => {
+    console.log('Ending task:', { taskId, taskTitle });
+    
     if (completedTasks.has(taskId)) {
       toast({
         title: "Task Already Completed",
@@ -203,8 +225,18 @@ const Tasks = () => {
         break;
       case 'start':
         if (tasks.length > 0) {
-          const firstTask = tasks[0];
-          handleTaskStart(firstTask.id, firstTask.title, firstTask.duration || 30);
+          const firstAvailableTask = tasks.find(task => 
+            !completedTasks.has(task.id) && activeTask !== task.id
+          );
+          if (firstAvailableTask) {
+            handleTaskStart(firstAvailableTask.id, firstAvailableTask.title, firstAvailableTask.duration || 30);
+          } else {
+            toast({
+              title: "No Available Tasks",
+              description: "All tasks are either completed or already active.",
+              variant: "destructive"
+            });
+          }
         } else {
           toast({
             title: "No Tasks Available",
@@ -266,7 +298,7 @@ const Tasks = () => {
             <TaskDisplay 
               tasks={tasks} 
               onTaskStart={handleTaskStart}
-              onTaskComplete={handleTaskComplete}
+              onTaskEnd={handleTaskEnd}
               activeTask={activeTask}
               taskTimers={taskTimers}
               completedTasks={completedTasks}
