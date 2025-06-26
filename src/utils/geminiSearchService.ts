@@ -1,7 +1,17 @@
+
 export interface Reference {
   title: string;
   url: string;
   type: "website" | "video" | "tutorial" | "article" | "book";
+}
+
+export interface LearningReference {
+  title: string;
+  url?: string;
+  author?: string;
+  description: string;
+  relevance: string;
+  type: "book" | "website" | "tutorial" | "documentation" | "article";
 }
 
 const getTopicCategory = (topic: string): string => {
@@ -168,6 +178,16 @@ const getRelevantReferences = (topic: string): Reference[] => {
   }
 };
 
+const convertReferencesToLearningReferences = (references: Reference[], stepTitle: string, stepDescription: string): LearningReference[] => {
+  return references.map(ref => ({
+    title: ref.title,
+    url: ref.url,
+    description: `Resource for understanding ${stepTitle.toLowerCase()}`,
+    relevance: `This resource will help you with: ${stepDescription.slice(0, 100)}...`,
+    type: ref.type === "website" ? "website" : ref.type as LearningReference['type']
+  }));
+};
+
 export const searchRelevantReferences = async (topic: string): Promise<Reference[]> => {
   try {
     // Get topic-specific references
@@ -185,3 +205,40 @@ export const searchRelevantReferences = async (topic: string): Promise<Reference
     return getRelevantReferences(topic);
   }
 };
+
+export class GeminiSearchService {
+  static async getReferencesForStep(
+    stepTitle: string, 
+    stepDescription: string, 
+    taskType: string, 
+    difficulty: string
+  ): Promise<LearningReference[]> {
+    try {
+      // Create a search query combining step info with task context
+      const searchQuery = `${stepTitle} ${taskType} ${difficulty}`;
+      
+      // Get relevant references based on the search query
+      const references = await searchRelevantReferences(searchQuery);
+      
+      // Convert to LearningReference format
+      const learningReferences = convertReferencesToLearningReferences(references, stepTitle, stepDescription);
+      
+      console.log(`Generated ${learningReferences.length} learning references for step: ${stepTitle}`);
+      
+      return learningReferences;
+    } catch (error) {
+      console.error('Error getting references for step:', error);
+      
+      // Fallback references
+      return [
+        {
+          title: "General Learning Resource",
+          url: "https://www.khanacademy.org/",
+          description: "Comprehensive learning platform with courses on various topics",
+          relevance: "This resource provides foundational knowledge for your learning step",
+          type: "website"
+        }
+      ];
+    }
+  }
+}
