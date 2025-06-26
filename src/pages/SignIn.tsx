@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, Mail, Lock, Github, Chrome, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const SignIn = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,21 +22,59 @@ const SignIn = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
+
+      if (error) {
+        toast({
+          title: "Sign In Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else if (data.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
+        navigate('/');
+      }
+    } catch (error) {
+      toast({
+        title: "Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
-  const handleSocialSignIn = (provider: string) => {
-    toast({
-      title: `${provider} Sign In`,
-      description: `Redirecting to ${provider} authentication...`,
-    });
+  const handleSocialSignIn = async (provider: 'google' | 'github' | 'facebook') => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Authentication Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Authentication Error",
+        description: "Failed to authenticate with the selected provider.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -55,7 +95,7 @@ const SignIn = () => {
               {/* Social Sign In Buttons */}
               <div className="space-y-3">
                 <Button 
-                  onClick={() => handleSocialSignIn('Google')}
+                  onClick={() => handleSocialSignIn('google')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-red-50 hover:border-red-300 border-gray-300"
                 >
@@ -64,7 +104,7 @@ const SignIn = () => {
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignIn('GitHub')}
+                  onClick={() => handleSocialSignIn('github')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
                 >
@@ -73,7 +113,7 @@ const SignIn = () => {
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignIn('Facebook')}
+                  onClick={() => handleSocialSignIn('facebook')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
                 >
