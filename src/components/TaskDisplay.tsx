@@ -346,7 +346,6 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
 
       {codePracticeTask && (
         <CodePracticeModal
-          task={codePracticeTask}
           isOpen={!!codePracticeTask}
           onClose={() => setCodePracticeTask(null)}
           taskTitle={codePracticeTask.title}

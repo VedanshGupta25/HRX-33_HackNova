@@ -30,7 +30,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
   onCodeChange,
   onRun
 }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLTextAreaElement>(null);
   const [code, setCode] = React.useState(initialCode);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const { toast } = useToast();

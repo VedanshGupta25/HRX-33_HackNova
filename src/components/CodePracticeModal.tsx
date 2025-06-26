@@ -12,9 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import {
   Code2,
-  ExternalLink,
   Monitor,
-  Globe,
   Zap,
   CheckCircle,
   ArrowRight,
@@ -54,22 +52,6 @@ export const CodePracticeModal: React.FC<CodePracticeModalProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<CodeTemplate | null>(null);
   const { toast } = useToast();
 
-  const handleVSCodeWeb = () => {
-    const taskTemplates = CodeUtils.generateCodeTemplate(taskTitle, taskType, 'beginner');
-    const jsTemplate = taskTemplates.find(t => t.language === 'javascript');
-    
-    if (jsTemplate) {
-      CodeUtils.openVSCodeWeb(jsTemplate);
-    } else {
-      window.open('https://vscode.dev', '_blank');
-    }
-    
-    toast({
-      title: "Opening VS Code Web! 🌐",
-      description: "VS Code Web is opening in a new tab with your starter template.",
-    });
-  };
-
   const handleVSCodeDesktop = () => {
     CodeUtils.openVSCode();
     
@@ -97,15 +79,6 @@ export const CodePracticeModal: React.FC<CodePracticeModalProps> = ({
   };
 
   const practiceOptions: PracticeOption[] = [
-    {
-      id: 'vscode-web',
-      title: 'VS Code Web',
-      description: 'Use the full VS Code experience in your browser with IntelliSense, debugging, and extensions.',
-      icon: <Globe className="h-6 w-6 text-blue-600 dark:text-blue-400" />,
-      badge: 'Recommended',
-      action: handleVSCodeWeb,
-      available: true
-    },
     {
       id: 'vscode-desktop',
       title: 'VS Code Desktop',
@@ -246,9 +219,7 @@ export const CodePracticeModal: React.FC<CodePracticeModalProps> = ({
                     <div className="flex flex-col items-end gap-2">
                       <Badge 
                         className={`${
-                          option.badge === 'Recommended' 
-                            ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700'
-                            : option.badge === 'Full Featured'
+                          option.badge === 'Full Featured'
                             ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700'
                             : 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700'
                         }`}
@@ -270,12 +241,9 @@ export const CodePracticeModal: React.FC<CodePracticeModalProps> = ({
                     className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-300 hover:scale-105"
                     disabled={!option.available}
                   >
-                    {option.id === 'vscode-web' && <ExternalLink className="h-4 w-4 mr-2" />}
                     {option.id === 'vscode-desktop' && <Download className="h-4 w-4 mr-2" />}
                     {option.id === 'browser' && <ArrowRight className="h-4 w-4 mr-2" />}
-                    {option.id === 'vscode-web' ? 'Open VS Code Web' : 
-                     option.id === 'vscode-desktop' ? 'Launch VS Code Desktop' : 
-                     'Start Coding Here'}
+                    {option.id === 'vscode-desktop' ? 'Launch VS Code Desktop' : 'Start Coding Here'}
                   </Button>
                 </CardContent>
               </Card>
@@ -294,15 +262,15 @@ export const CodePracticeModal: React.FC<CodePracticeModalProps> = ({
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                 <li className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>VS Code Web is perfect for quick practice without installation</span>
+                  <span>Desktop VS Code offers the full development experience with extensions and debugging</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Desktop VS Code offers the full development experience</span>
+                  <span>In-browser editor is great for focused coding sessions and quick practice</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>In-browser editor is great for focused coding sessions</span>
+                  <span>Use the in-browser editor to test ideas before moving to your main development environment</span>
                 </li>
               </ul>
             </CardContent>

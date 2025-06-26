@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,8 +18,14 @@ import {
   Clock,
   Trophy,
   Eye,
-  X
+  X,
+  ExternalLink,
+  Book,
+  Globe,
+  FileText,
+  GraduationCap
 } from 'lucide-react';
+import { GeminiSearchService, type LearningReference } from '@/utils/geminiSearchService';
 
 interface Task {
   id: string;
@@ -39,6 +45,9 @@ interface TaskPreviewModalProps {
 }
 
 export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen, onClose }) => {
+  const [loadingReferences, setLoadingReferences] = useState<{[key: number]: boolean}>({});
+  const [stepReferences, setStepReferences] = useState<{[key: number]: LearningReference[]}>({});
+
   const getTaskIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'reading':
@@ -223,6 +232,42 @@ export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen
     return typeSteps;
   };
 
+  const loadReferencesForStep = async (stepIndex: number, step: any) => {
+    if (stepReferences[stepIndex] || loadingReferences[stepIndex]) return;
+
+    setLoadingReferences(prev => ({ ...prev, [stepIndex]: true }));
+    
+    try {
+      const references = await GeminiSearchService.getReferencesForStep(
+        step.title,
+        step.description,
+        task.type,
+        task.difficulty
+      );
+      
+      setStepReferences(prev => ({ ...prev, [stepIndex]: references }));
+    } catch (error) {
+      console.error('Failed to load references:', error);
+    } finally {
+      setLoadingReferences(prev => ({ ...prev, [stepIndex]: false }));
+    }
+  };
+
+  const getReferenceIcon = (type: string) => {
+    switch (type) {
+      case 'book':
+        return <Book className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+      case 'website':
+        return <Globe className="h-4 w-4 text-green-600 dark:text-green-400" />;
+      case 'tutorial':
+        return <GraduationCap className="h-4 w-4 text-purple-600 dark:text-purple-400" />;
+      case 'documentation':
+        return <FileText className="h-4 w-4 text-orange-600 dark:text-orange-400" />;
+      default:
+        return <BookOpen className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
+    }
+  };
+
   const hints = getHelpfulHints(task.type, task.difficulty);
   const steps = getDetailedSteps(task.type, task.difficulty);
 
@@ -307,7 +352,7 @@ export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen
             </CardContent>
           </Card>
 
-          {/* Step by Step Guide */}
+          {/* Step by Step Guide with References */}
           <Card className="bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300 transition-colors duration-300">
@@ -318,20 +363,89 @@ export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen
             <CardContent>
               <div className="space-y-4">
                 {steps.map((step, index) => (
-                  <div key={index} className="flex gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm transition-all duration-300">
-                    <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center p-0 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700 flex-shrink-0">
-                      {index + 1}
-                    </Badge>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
-                        {step.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors duration-300">
-                        {step.description}
-                      </p>
-                      <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 transition-colors duration-300">
-                        <Clock className="h-3 w-3" />
-                        <span>{step.duration}</span>
+                  <div key={index} className="space-y-3">
+                    <div className="flex gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm transition-all duration-300">
+                      <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center p-0 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700 flex-shrink-0">
+                        {index + 1}
+                      </Badge>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
+                          {step.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors duration-300">
+                          {step.description}
+                        </p>
+                        <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 transition-colors duration-300">
+                          <Clock className="h-3 w-3" />
+                          <span>{step.duration}</span>
+                        </div>
+                        
+                        {/* References Section */}
+                        <div className="mt-3">
+                          {!stepReferences[index] && !loadingReferences[index] && (
+                            <Button
+                              onClick={() => loadReferencesForStep(index, step)}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                            >
+                              <BookOpen className="h-3 w-3 mr-1" />
+                              Load References
+                            </Button>
+                          )}
+                          
+                          {loadingReferences[index] && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              Loading references...
+                            </div>
+                          )}
+                          
+                          {stepReferences[index] && (
+                            <div className="space-y-2">
+                              <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                <BookOpen className="h-3 w-3" />
+                                Recommended Resources:
+                              </h5>
+                              <div className="grid gap-2">
+                                {stepReferences[index].map((ref, refIndex) => (
+                                  <div key={refIndex} className="p-2 bg-gray-50 dark:bg-gray-700/50 rounded border border-gray-200 dark:border-gray-600">
+                                    <div className="flex items-start gap-2">
+                                      {getReferenceIcon(ref.type)}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <h6 className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">
+                                            {ref.title}
+                                          </h6>
+                                          {ref.url && (
+                                            <Button
+                                              onClick={() => window.open(ref.url, '_blank')}
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-4 w-4 p-0 hover:bg-transparent"
+                                            >
+                                              <ExternalLink className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                                            </Button>
+                                          )}
+                                        </div>
+                                        {ref.author && (
+                                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            by {ref.author}
+                                          </p>
+                                        )}
+                                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                                          {ref.description}
+                                        </p>
+                                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 italic">
+                                          {ref.relevance}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -339,7 +453,7 @@ export const TaskPreviewModal: React.FC<TaskPreviewModalProps> = ({ task, isOpen
               </div>
               <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
                 <p className="text-sm text-green-800 dark:text-green-300 transition-colors duration-300">
-                  💡 <strong>Pro Tip:</strong> Follow these steps in order for the best learning experience. 
+                  💡 <strong>Pro Tip:</strong> Click "Load References" for each step to get personalized book recommendations and website resources. 
                   Each step builds upon the previous one to maximize your understanding and retention.
                 </p>
               </div>
