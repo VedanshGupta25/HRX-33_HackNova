@@ -7,7 +7,6 @@ import { ProgressDisplay } from '@/components/ProgressDisplay';
 import { RewardNotification } from '@/components/RewardNotification';
 import { VoiceCommands } from '@/components/VoiceCommands';
 import { GuideModal } from '@/components/GuideModal';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useGamification } from '@/hooks/useGamification';
@@ -138,7 +137,6 @@ const Tasks = () => {
       return;
     }
 
-    // Use the duration in minutes directly
     const durationMinutes = duration;
 
     setActiveTask(taskId);
@@ -146,7 +144,7 @@ const Tasks = () => {
       ...prev,
       [taskId]: {
         startTime: new Date(),
-        duration: durationMinutes * 60 // Convert minutes to seconds
+        duration: durationMinutes * 60
       }
     }));
 
@@ -171,7 +169,6 @@ const Tasks = () => {
     const result = completeTask('learning');
     setCompletedTasks(prev => new Set([...prev, taskId]));
     
-    // Remove from active tasks and timers
     if (activeTask === taskId) {
       setActiveTask(null);
     }
@@ -181,7 +178,6 @@ const Tasks = () => {
       return updated;
     });
     
-    // Show reward notification
     setRewardData({
       ...result,
       newLevel: userProgress.level
@@ -205,7 +201,6 @@ const Tasks = () => {
   };
 
   const handleVoiceCommand = (command: string, text?: string) => {
-    // Track voice command usage
     const voiceResult = useVoiceCommand();
     
     if (voiceResult.unlockedAchievements.length > 0) {
@@ -285,7 +280,7 @@ const Tasks = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Theme Toggle and Guide Button */}
+          {/* Learning Guide Button */}
           <div className="flex justify-end gap-2 mb-4">
             <Button
               onClick={() => setShowGuide(true)}
@@ -298,7 +293,6 @@ const Tasks = () => {
               <span className="sm:hidden">Guide</span>
               <Sparkles className="h-3 w-3 ml-1 animate-pulse" />
             </Button>
-            <ThemeToggle />
           </div>
 
           <ProgressDisplay 

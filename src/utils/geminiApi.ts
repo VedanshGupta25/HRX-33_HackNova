@@ -1,3 +1,4 @@
+
 export interface TaskGenerationRequest {
   input: string;
   inputType: 'concept' | 'transcript';
@@ -17,6 +18,7 @@ export interface Task {
   streakBonus?: string;
   unlocksNext?: boolean;
   rating?: number;
+  showCodePractice?: boolean;
 }
 
 const GEMINI_API_KEY = 'AIzaSyBRxr4-39V02IuqRxYjwo1XaDPAijwDWiI';
@@ -46,28 +48,37 @@ ADVANCED LEVEL (3 tasks):
 ✅ 1 Exercise task (type: "Exercise", difficulty: "Advanced")
 ✅ 1 Project task (type: "Project", difficulty: "Advanced")
 
+IMPORTANT INSTRUCTIONS:
+- Instead of providing generic resource links, generate RELEVANT INFORMATION about the topic
+- For "Define project scope and objectives" → Provide actual guidance on how to define scope
+- For "Break down the problem" → Explain step-by-step problem breakdown techniques
+- For "Plan your approach" → Give specific planning strategies
+- Only set "showCodePractice": true for coding-related topics (React, JavaScript, HTML, CSS, Python, programming languages, web development, etc.)
+- For non-coding topics (business, history, science concepts, etc.), set "showCodePractice": false
+
 For each task, provide:
 - "title": string (engaging and specific)
-- "description": string (2-3 sentences explaining what the learner will do)
+- "description": string (2-3 sentences with ACTUAL helpful information, not generic descriptions)
 - "difficulty": "Beginner" | "Intermediate" | "Advanced"
 - "estimatedTime": string (realistic time estimate like "30 minutes", "2 hours", "1-2 days")
 - "type": "Reading" | "Exercise" | "Project"
 - "xpReward": number (Beginner: 25-50, Intermediate: 75-100, Advanced: 125-200)
 - "rating": number (random between 3.5 and 5.0 for demo purposes)
+- "showCodePractice": boolean (true only for coding-related topics)
 
 **Learning Topic:** ${request.input}
 **User Skill Level:** ${request.skillLevel}
 **User Interests:** ${request.userPreferences.join(', ')}
 
 **Difficulty Guidelines:**
-- Beginner: Basic concepts, guided practice, simple implementations
-- Intermediate: Applied knowledge, problem-solving, moderate complexity
-- Advanced: Deep analysis, optimization, professional-level projects
+- Beginner: Basic concepts with detailed explanations and step-by-step guidance
+- Intermediate: Applied knowledge with practical examples and real-world scenarios
+- Advanced: Deep analysis with expert-level insights and best practices
 
 **Type Guidelines:**
-- Reading: Articles, documentation, research papers, tutorials
-- Exercise: Coding challenges, quizzes, practice problems, hands-on activities  
-- Project: Complete applications, research studies, comprehensive implementations
+- Reading: Comprehensive explanations with actionable insights, not just resource links
+- Exercise: Practical activities with clear instructions and expected outcomes
+- Project: Complete implementations with detailed planning and execution steps
 
 ALWAYS return only a valid JSON array of exactly 9 task objects.
 DO NOT include any extra text or commentary.
@@ -120,6 +131,7 @@ DO NOT include any extra text or commentary.
         type: task.type,
         xpReward: task.xpReward || (task.difficulty === 'Beginner' ? 25 : task.difficulty === 'Intermediate' ? 75 : 125),
         rating: task.rating || (3.5 + Math.random() * 1.5),
+        showCodePractice: task.showCodePractice || false,
         badgeUnlock: task.badgeUnlock,
         streakBonus: task.streakBonus,
         unlocksNext: task.unlocksNext
