@@ -1,8 +1,7 @@
-
 export interface Reference {
   title: string;
   url: string;
-  type: "website" | "video" | "tutorial" | "article" | "book";
+  type: "website" | "video" | "tutorial" | "article" | "book" | "documentation";
 }
 
 export interface LearningReference {
