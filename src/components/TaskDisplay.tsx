@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,9 +14,11 @@ import {
   Code, 
   Lightbulb,
   Timer,
-  Eye
+  Eye,
+  Code2
 } from 'lucide-react';
 import { TaskPreviewModal } from './TaskPreviewModal';
+import { CodePracticeModal } from './CodePracticeModal';
 
 interface Task {
   id: string;
@@ -49,6 +50,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
 }) => {
   const [timeRemaining, setTimeRemaining] = useState<{[key: string]: number}>({});
   const [previewTask, setPreviewTask] = useState<Task | null>(null);
+  const [codePracticeTask, setCodePracticeTask] = useState<Task | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -142,6 +144,13 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
     return Math.min(100, (elapsed / timer.duration) * 100);
   };
 
+  const isCodeRelatedTask = (task: Task): boolean => {
+    const codeKeywords = ['code', 'programming', 'exercise', 'project', 'algorithm', 'function', 'implementation'];
+    const taskText = `${task.title} ${task.description} ${task.type}`.toLowerCase();
+    return codeKeywords.some(keyword => taskText.includes(keyword)) || 
+           ['exercise', 'project'].includes(task.type.toLowerCase());
+  };
+
   // Group tasks by difficulty
   const groupedTasks = tasks.reduce((acc, task) => {
     const difficulty = task.difficulty.toLowerCase();
@@ -181,6 +190,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                 const progress = calculateProgress(task.id);
                 const remaining = timeRemaining[task.id] || 0;
                 const duration = extractDuration(task.estimatedTime);
+                const showCodeButton = isCodeRelatedTask(task);
 
                 return (
                   <Card 
@@ -201,6 +211,12 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                           <Badge className={getDifficultyColor(task.difficulty)}>
                             {task.difficulty}
                           </Badge>
+                          {showCodeButton && (
+                            <Badge className="bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-700">
+                              <Code2 className="h-3 w-3 mr-1" />
+                              Code
+                            </Badge>
+                          )}
                         </div>
                         {isCompleted && <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />}
                       </div>
@@ -283,6 +299,17 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                                   </Button>
                                 )}
                               </div>
+                              
+                              {showCodeButton && (
+                                <Button 
+                                  onClick={() => setCodePracticeTask(task)}
+                                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105"
+                                  variant="secondary"
+                                >
+                                  <Code2 className="h-4 w-4 mr-2" />
+                                  Practice Code
+                                </Button>
+                              )}
                             </div>
                           )}
                         </div>
@@ -314,6 +341,16 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
           task={previewTask}
           isOpen={!!previewTask}
           onClose={() => setPreviewTask(null)}
+        />
+      )}
+
+      {codePracticeTask && (
+        <CodePracticeModal
+          task={codePracticeTask}
+          isOpen={!!codePracticeTask}
+          onClose={() => setCodePracticeTask(null)}
+          taskTitle={codePracticeTask.title}
+          taskType={codePracticeTask.type}
         />
       )}
     </div>
