@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { TaskPreviewModal } from './TaskPreviewModal';
 import { CodePracticeModal } from './CodePracticeModal';
+import { GeminiTaskClassifier, type TaskClassificationResult } from '@/utils/geminiTaskClassifier';
 
 interface Task {
   id: string;
@@ -51,30 +52,62 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
   const [timeRemaining, setTimeRemaining] = useState<{[key: string]: number}>({});
   const [previewTask, setPreviewTask] = useState<Task | null>(null);
   const [codePracticeTask, setCodePracticeTask] = useState<Task | null>(null);
+  const [taskClassifications, setTaskClassifications] = useState<{[key: string]: TaskClassificationResult}>({});
+  const [classifyingTasks, setClassifyingTasks] = useState<Set<string>>(new Set());
 
+  // Classify tasks when they change
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newTimeRemaining: {[key: string]: number} = {};
+    const classifyNewTasks = async () => {
+      const newTasks = tasks.filter(task => !taskClassifications[task.id] && !classifyingTasks.has(task.id));
       
-      Object.entries(taskTimers).forEach(([taskId, timer]) => {
-        const elapsed = Math.floor((Date.now() - timer.startTime.getTime()) / 1000);
-        const remaining = Math.max(0, timer.duration - elapsed);
-        newTimeRemaining[taskId] = remaining;
-        
-        if (remaining === 0 && activeTask === taskId) {
-          // Auto-end task when timer expires
-          const task = tasks.find(t => t.id === taskId);
-          if (task) {
-            onTaskEnd(taskId, task.title);
-          }
+      if (newTasks.length === 0) return;
+
+      // Mark tasks as being classified
+      setClassifyingTasks(prev => new Set([...prev, ...newTasks.map(t => t.id)]));
+
+      // Classify tasks in parallel for better performance
+      const classificationPromises = newTasks.map(async (task) => {
+        try {
+          const classification = await GeminiTaskClassifier.classifyTask(
+            task.title,
+            task.description,
+            task.type
+          );
+          return { taskId: task.id, classification };
+        } catch (error) {
+          console.error(`Failed to classify task ${task.id}:`, error);
+          return { 
+            taskId: task.id, 
+            classification: { 
+              isCodeRelated: false, 
+              confidence: 0.5, 
+              reasoning: 'Classification failed' 
+            } 
+          };
         }
       });
-      
-      setTimeRemaining(newTimeRemaining);
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [taskTimers, activeTask, tasks, onTaskEnd]);
+      const results = await Promise.all(classificationPromises);
+
+      // Update classifications
+      setTaskClassifications(prev => {
+        const updated = { ...prev };
+        results.forEach(({ taskId, classification }) => {
+          updated[taskId] = classification;
+        });
+        return updated;
+      });
+
+      // Remove from classifying set
+      setClassifyingTasks(prev => {
+        const updated = new Set(prev);
+        newTasks.forEach(task => updated.delete(task.id));
+        return updated;
+      });
+    };
+
+    classifyNewTasks();
+  }, [tasks, taskClassifications, classifyingTasks]);
 
   const getTaskIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -144,11 +177,14 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
     return Math.min(100, (elapsed / timer.duration) * 100);
   };
 
+  // Updated function to use AI classification
   const isCodeRelatedTask = (task: Task): boolean => {
-    const codeKeywords = ['code', 'programming', 'exercise', 'project', 'algorithm', 'function', 'implementation'];
-    const taskText = `${task.title} ${task.description} ${task.type}`.toLowerCase();
-    return codeKeywords.some(keyword => taskText.includes(keyword)) || 
-           ['exercise', 'project'].includes(task.type.toLowerCase());
+    const classification = taskClassifications[task.id];
+    if (!classification) {
+      // Return false while classification is pending
+      return false;
+    }
+    return classification.isCodeRelated;
   };
 
   // Group tasks by difficulty
@@ -191,6 +227,8 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                 const remaining = timeRemaining[task.id] || 0;
                 const duration = extractDuration(task.estimatedTime);
                 const showCodeButton = isCodeRelatedTask(task);
+                const isClassifying = classifyingTasks.has(task.id);
+                const classification = taskClassifications[task.id];
 
                 return (
                   <Card 
@@ -217,6 +255,11 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                               Code
                             </Badge>
                           )}
+                          {isClassifying && (
+                            <Badge className="bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">
+                              Analyzing...
+                            </Badge>
+                          )}
                         </div>
                         {isCompleted && <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />}
                       </div>
@@ -226,6 +269,11 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                       </CardTitle>
                       <CardDescription className="text-sm dark:text-gray-400 transition-colors duration-300">
                         {task.description}
+                        {classification && classification.confidence < 0.8 && (
+                          <div className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                            AI Classification: {Math.round(classification.confidence * 100)}% confidence
+                          </div>
+                        )}
                       </CardDescription>
                     </CardHeader>
 
