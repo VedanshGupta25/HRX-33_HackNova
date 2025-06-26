@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   BookOpen, 
   Trophy, 
@@ -18,14 +20,14 @@ export const Header = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+    <header className="bg-background/90 backdrop-blur-sm border-b border-border sticky top-0 z-40 shadow-sm transition-colors duration-300">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
               <BookOpen className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-800">EduAI</span>
+            <span className="text-xl font-bold text-foreground">EduAI</span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-1">
@@ -82,6 +84,8 @@ export const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-2">
+            <ThemeToggle />
+            
             <Link to="/profile">
               <Button 
                 variant={isActive('/profile') ? "default" : "ghost"}
