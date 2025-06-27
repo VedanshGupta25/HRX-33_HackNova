@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,11 @@ import {
 } from '@/components/ui/select';
 import { Eye, EyeOff, Mail, Lock, User, Github, Chrome, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const SignUp = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -35,6 +37,24 @@ const SignUp = () => {
     'Web Development', 'Mobile Apps', 'Machine Learning',
     'Data Science', 'UI/UX Design', 'Cybersecurity'
   ];
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        navigate('/');
+      }
+    });
+
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -61,23 +81,90 @@ const SignUp = () => {
       return;
     }
 
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "Welcome to LearnAI! 🎉",
-        description: "Your account has been created successfully.",
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email.trim(),
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            experience_level: formData.experienceLevel,
+            interests: formData.interests
+          }
+        }
       });
+
+      if (error) {
+        console.error('Sign up error:', error);
+        toast({
+          title: "Sign Up Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Welcome to EduAI! 🎉",
+          description: data.user?.email_confirmed_at 
+            ? "Your account has been created successfully!" 
+            : "Please check your email to confirm your account.",
+        });
+        
+        // If email is already confirmed, user will be redirected by onAuthStateChange
+        if (!data.user?.email_confirmed_at) {
+          // Redirect to sign in page for unconfirmed users
+          setTimeout(() => navigate('/signin'), 2000);
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Sign Up Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
-  const handleSocialSignUp = (provider: string) => {
-    toast({
-      title: `${provider} Sign Up`,
-      description: `Redirecting to ${provider} authentication...`,
-    });
+  const handleSocialSignUp = async (provider: 'google' | 'github' | 'facebook') => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        console.error('Social auth error:', error);
+        toast({
+          title: "Authentication Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Social auth unexpected error:', error);
+      toast({
+        title: "Authentication Error",
+        description: "Failed to authenticate with the selected provider.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -88,7 +175,7 @@ const SignUp = () => {
         <div className="max-w-2xl mx-auto">
           <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-0">
             <CardHeader className="text-center pb-2 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
-              <CardTitle className="text-2xl font-bold">Join LearnAI</CardTitle>
+              <CardTitle className="text-2xl font-bold">Join EduAI</CardTitle>
               <CardDescription className="text-white/90">
                 Create your account and start your personalized learning journey
               </CardDescription>
@@ -98,7 +185,7 @@ const SignUp = () => {
               {/* Social Sign Up Buttons */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Button 
-                  onClick={() => handleSocialSignUp('Google')}
+                  onClick={() => handleSocialSignUp('google')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-red-50 hover:border-red-300 border-gray-300"
                 >
@@ -107,7 +194,7 @@ const SignUp = () => {
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignUp('GitHub')}
+                  onClick={() => handleSocialSignUp('github')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
                 >
@@ -116,7 +203,7 @@ const SignUp = () => {
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignUp('Facebook')}
+                  onClick={() => handleSocialSignUp('facebook')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
                 >
@@ -222,6 +309,7 @@ const SignUp = () => {
                       onChange={(e) => handleInputChange('password', e.target.value)}
                       className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       required
+                      minLength={6}
                     />
                     <button
                       type="button"
@@ -245,6 +333,7 @@ const SignUp = () => {
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                       className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       required
+                      minLength={6}
                     />
                     <button
                       type="button"

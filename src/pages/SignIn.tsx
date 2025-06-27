@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,17 +18,36 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // Check if user is already logged in
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        navigate('/');
+      }
+    });
+
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
       if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Sign In Failed",
           description: error.message,
@@ -39,9 +58,10 @@ const SignIn = () => {
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
-        navigate('/');
+        // Navigation will be handled by onAuthStateChange
       }
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Sign In Failed",
         description: "An unexpected error occurred. Please try again.",
@@ -62,6 +82,7 @@ const SignIn = () => {
       });
 
       if (error) {
+        console.error('Social auth error:', error);
         toast({
           title: "Authentication Error",
           description: error.message,
@@ -69,6 +90,7 @@ const SignIn = () => {
         });
       }
     } catch (error) {
+      console.error('Social auth unexpected error:', error);
       toast({
         title: "Authentication Error",
         description: "Failed to authenticate with the selected provider.",
