@@ -55,6 +55,31 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
   const [taskClassifications, setTaskClassifications] = useState<{[key: string]: TaskClassificationResult}>({});
   const [classifyingTasks, setClassifyingTasks] = useState<Set<string>>(new Set());
 
+  // Timer effect to update remaining time every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeRemaining(prev => {
+        const updated = { ...prev };
+        let hasChanges = false;
+
+        Object.keys(taskTimers).forEach(taskId => {
+          const timer = taskTimers[taskId];
+          const elapsed = Math.floor((Date.now() - timer.startTime.getTime()) / 1000);
+          const remaining = Math.max(0, timer.duration - elapsed);
+          
+          if (updated[taskId] !== remaining) {
+            updated[taskId] = remaining;
+            hasChanges = true;
+          }
+        });
+
+        return hasChanges ? updated : prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [taskTimers]);
+
   // Classify tasks when they change
   useEffect(() => {
     const classifyNewTasks = async () => {
