@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/select';
 import { Eye, EyeOff, Mail, Lock, User, Github, Chrome, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 const SignUp = () => {
   const { toast } = useToast();
@@ -37,24 +36,6 @@ const SignUp = () => {
     'Web Development', 'Mobile Apps', 'Machine Learning',
     'Data Science', 'UI/UX Design', 'Cybersecurity'
   ];
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        navigate('/');
-      }
-    });
-
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate('/');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -92,79 +73,23 @@ const SignUp = () => {
 
     setIsLoading(true);
     
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email.trim(),
-        password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            experience_level: formData.experienceLevel,
-            interests: formData.interests
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Sign up error:', error);
-        toast({
-          title: "Sign Up Failed",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Welcome to EduAI! 🎉",
-          description: data.user?.email_confirmed_at 
-            ? "Your account has been created successfully!" 
-            : "Please check your email to confirm your account.",
-        });
-        
-        // If email is already confirmed, user will be redirected by onAuthStateChange
-        if (!data.user?.email_confirmed_at) {
-          // Redirect to sign in page for unconfirmed users
-          setTimeout(() => navigate('/signin'), 2000);
-        }
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
+    // Mock account creation - replace with your preferred auth solution
+    setTimeout(() => {
       toast({
-        title: "Sign Up Failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
+        title: "Welcome to EduAI! 🎉",
+        description: "Your account has been created successfully (demo mode)!",
       });
-    } finally {
+      navigate('/signin');
       setIsLoading(false);
-    }
+    }, 1000);
   };
 
-  const handleSocialSignUp = async (provider: 'google' | 'github' | 'facebook') => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
-      });
-
-      if (error) {
-        console.error('Social auth error:', error);
-        toast({
-          title: "Authentication Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Social auth unexpected error:', error);
-      toast({
-        title: "Authentication Error",
-        description: "Failed to authenticate with the selected provider.",
-        variant: "destructive",
-      });
-    }
+  const handleSocialSignUp = async (provider: string) => {
+    toast({
+      title: "Social Sign Up",
+      description: `${provider} authentication not configured (demo mode)`,
+      variant: "destructive",
+    });
   };
 
   return (
@@ -185,7 +110,7 @@ const SignUp = () => {
               {/* Social Sign Up Buttons */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Button 
-                  onClick={() => handleSocialSignUp('google')}
+                  onClick={() => handleSocialSignUp('Google')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-red-50 hover:border-red-300 border-gray-300"
                 >
@@ -194,7 +119,7 @@ const SignUp = () => {
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignUp('github')}
+                  onClick={() => handleSocialSignUp('GitHub')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
                 >
@@ -203,7 +128,7 @@ const SignUp = () => {
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignUp('facebook')}
+                  onClick={() => handleSocialSignUp('Facebook')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
                 >
