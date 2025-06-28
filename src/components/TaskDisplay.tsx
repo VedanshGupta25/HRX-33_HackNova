@@ -380,7 +380,7 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
                                   variant="secondary"
                                 >
                                   <Code2 className="h-4 w-4 mr-2" />
-                                  Practice Code
+                                  Practice
                                 </Button>
                               )}
                             </div>
