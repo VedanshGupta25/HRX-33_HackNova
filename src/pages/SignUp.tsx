@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
@@ -16,10 +15,12 @@ import {
 import { Eye, EyeOff, Mail, Lock, User, Github, Chrome, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SignUp = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -39,22 +40,10 @@ const SignUp = () => {
   ];
 
   useEffect(() => {
-    // Check if user is already logged in
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        navigate('/');
-      }
-    });
-
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate('/');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (!loading && user) {
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -102,7 +91,7 @@ const SignUp = () => {
             first_name: formData.firstName,
             last_name: formData.lastName,
             experience_level: formData.experienceLevel,
-            interests: formData.interests
+            interests: formData.interests.join(',')
           }
         }
       });
@@ -122,7 +111,7 @@ const SignUp = () => {
             : "Please check your email to confirm your account.",
         });
         
-        // If email is already confirmed, user will be redirected by onAuthStateChange
+        // If email is already confirmed, user will be redirected by the auth context
         if (!data.user?.email_confirmed_at) {
           // Redirect to sign in page for unconfirmed users
           setTimeout(() => navigate('/signin'), 2000);
@@ -166,6 +155,17 @@ const SignUp = () => {
       });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">

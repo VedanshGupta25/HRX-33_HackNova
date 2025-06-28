@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   BookOpen, 
   Trophy, 
@@ -11,13 +13,19 @@ import {
   User,
   MessageCircle,
   LogIn,
+  LogOut,
   Briefcase
 } from 'lucide-react';
 
 export const Header = () => {
   const location = useLocation();
+  const { user, profile, signOut, loading } = useAuth();
   
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <header className="bg-background/90 backdrop-blur-sm border-b border-border sticky top-0 z-40 shadow-sm transition-colors duration-300">
@@ -97,27 +105,47 @@ export const Header = () => {
           <div className="flex items-center space-x-2">
             <ThemeToggle />
             
-            <Link to="/profile">
-              <Button 
-                variant={isActive('/profile') ? "default" : "ghost"}
-                size="sm"
-                className="flex items-center space-x-2"
-              >
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Profile</span>
-              </Button>
-            </Link>
-            
-            <Link to="/signin">
-              <Button 
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-2"
-              >
-                <LogIn className="h-4 w-4" />
-                <span>Sign In</span>
-              </Button>
-            </Link>
+            {!loading && (
+              <>
+                {user ? (
+                  <>
+                    <Link to="/profile">
+                      <Button 
+                        variant={isActive('/profile') ? "default" : "ghost"}
+                        size="sm"
+                        className="flex items-center space-x-2"
+                      >
+                        <User className="h-4 w-4" />
+                        <span className="hidden sm:inline">
+                          {profile?.first_name || 'Profile'}
+                        </span>
+                      </Button>
+                    </Link>
+                    
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSignOut}
+                      className="flex items-center space-x-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </Button>
+                  </>
+                ) : (
+                  <Link to="/signin">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center space-x-2"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span>Sign In</span>
+                    </Button>
+                  </Link>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
