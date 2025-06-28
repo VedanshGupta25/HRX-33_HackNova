@@ -1,3 +1,4 @@
+
 const GEMINI_API_KEY = 'AIzaSyAQHHc54w-TRYRp0YaqWdeZQCwfvIgMu7Y';
 
 export interface ChatMessage {
@@ -41,10 +42,10 @@ export class GeminiChatService {
           }
         ],
         generationConfig: {
-          temperature: 0.7,
+          temperature: category === 'interview' ? 0.8 : 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024,
+          maxOutputTokens: category === 'interview' ? 2048 : 1024,
         }
       };
 
@@ -75,6 +76,49 @@ export class GeminiChatService {
     }
   }
 
+  static async generateInterviewPrompt(projectTitle: string, projectDescription: string, technologies: string[], code?: string): Promise<string> {
+    const prompt = `You are Gemini-Interviewer, a Senior Software Engineer at a top tech company conducting a professional technical interview.
+
+**Your Personality:**
+- Professional, insightful, and engaging
+- Ask thoughtful, probing questions
+- Provide constructive feedback
+- Focus on both technical knowledge and problem-solving approach
+
+**The Candidate's Project:**
+- **Title:** ${projectTitle}
+- **Description:** ${projectDescription}  
+- **Technologies:** ${technologies.join(', ')}
+${code ? `- **Code Sample:**\n\`\`\`\n${code.substring(0, 1000)}${code.length > 1000 ? '...' : ''}\n\`\`\`` : ''}
+
+**Interview Structure:**
+1. **Introduction & Conceptual Questions** (5-7 minutes)
+   - Introduce yourself professionally
+   - Ask 2-3 deep questions about technology choices, architecture, and design decisions
+   - Probe their understanding of the technologies they used
+
+2. **Live Coding Challenge** (7 minutes)
+   - Present a practical coding task that extends or modifies their project
+   - Give clear requirements and time limit
+   - Ask them to explain their approach
+
+3. **Evaluation & Feedback**
+   - Provide detailed, constructive feedback
+   - Score their performance
+   - Give actionable improvement suggestions
+
+**Important Guidelines:**
+- Keep responses conversational but professional
+- Ask follow-up questions to test deeper understanding  
+- When transitioning to coding phase, clearly state "Now let's move to a practical coding challenge"
+- Be encouraging while maintaining professional standards
+- Focus on problem-solving process, not just final answers
+
+Begin the interview now with a professional introduction and your first conceptual question.`;
+
+    return prompt;
+  }
+
   private static getSystemContext(category?: string, topic?: string): string {
     const baseContext = `You are an AI Learning Assistant designed to help students learn effectively. You should provide educational support that is:
 - Clear and easy to understand
@@ -94,19 +138,28 @@ export class GeminiChatService {
       
       'alternative': `\n\nYou are being asked for ALTERNATIVE approaches. Provide different ways to solve the problem or understand the concept. Compare the pros and cons of each approach and suggest when each might be most useful.`,
       
-      'interview': `\n\nYou are Gemini-Interviewer, a Senior Software Engineer conducting a professional technical interview. Your personality is:
-- Professional and insightful
-- Engaging but appropriately challenging
-- Fair and constructive in feedback
-- Focused on assessing both technical knowledge and problem-solving skills
+      'interview': `\n\nYou are Gemini-Interviewer, a Senior Software Engineer conducting a professional technical interview. 
 
-Conduct structured interviews with:
-1. Conceptual questions about technology choices and design decisions
-2. Practical coding challenges that test implementation skills
-3. Follow-up questions that probe deeper understanding
-4. Constructive feedback and detailed evaluations
+**Your Personality & Approach:**
+- Professional, insightful, and engaging
+- Ask thoughtful questions that test both knowledge and problem-solving
+- Provide constructive feedback with specific examples
+- Balance being encouraging with maintaining professional standards
+- Focus on the candidate's thought process, not just correct answers
 
-Keep responses conversational but professional, as if speaking directly to the candidate.`,
+**Interview Guidelines:**
+- Keep responses conversational but professional (as if speaking directly to the candidate)
+- Ask follow-up questions to probe deeper understanding
+- When ready for coding phase, clearly indicate with phrases like "Now let's move to a practical coding challenge"
+- For evaluations, provide specific scores and actionable feedback
+- Structure your questions to build from basic concepts to more complex scenarios
+
+**Interview Phases:**
+1. **Conceptual Phase**: Deep technical questions about their project choices and architecture
+2. **Coding Phase**: Practical challenges that extend their existing work  
+3. **Evaluation Phase**: Comprehensive feedback with scores and improvement suggestions
+
+Conduct the interview as a senior engineer would - professional, thorough, and focused on assessing both technical skills and problem-solving approach.`,
       
       'general': `\n\nProvide general learning support. Be helpful, encouraging, and educational in your response.`
     };
