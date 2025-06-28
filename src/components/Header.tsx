@@ -11,7 +11,8 @@ import {
   HelpCircle, 
   User,
   MessageCircle,
-  LogIn
+  LogIn,
+  Briefcase
 } from 'lucide-react';
 
 export const Header = () => {
@@ -71,6 +72,17 @@ export const Header = () => {
                 <Badge className="bg-green-500 text-white ml-1 animate-pulse">New</Badge>
               </Button>
             </Link>
+
+            <Link to="/interview">
+              <Button 
+                variant={isActive('/interview') ? "default" : "ghost"}
+                className="flex items-center space-x-2 relative"
+              >
+                <Briefcase className="h-4 w-4" />
+                <span>Interview</span>
+                <Badge className="bg-blue-500 text-white ml-1 animate-pulse">Hot</Badge>
+              </Button>
+            </Link>
             
             <Link to="/help">
               <Button 
@@ -110,6 +122,6 @@ export const Header = () => {
           </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 };

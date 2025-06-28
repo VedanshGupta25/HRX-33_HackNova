@@ -11,6 +11,7 @@ import Profile from '@/pages/Profile';
 import Collaborate from '@/pages/Collaborate';
 import HelpSupport from '@/pages/HelpSupport';
 import ChatSupport from '@/pages/ChatSupport';
+import Interview from '@/pages/Interview';
 import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
@@ -33,6 +34,7 @@ function App() {
               <Route path="/collaborate" element={<Collaborate />} />
               <Route path="/help" element={<HelpSupport />} />
               <Route path="/chat" element={<ChatSupport />} />
+              <Route path="/interview" element={<Interview />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="*" element={<NotFound />} />

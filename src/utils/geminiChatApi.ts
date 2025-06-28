@@ -1,4 +1,3 @@
-
 const GEMINI_API_KEY = 'AIzaSyAQHHc54w-TRYRp0YaqWdeZQCwfvIgMu7Y';
 
 export interface ChatMessage {
@@ -94,6 +93,20 @@ export class GeminiChatService {
       'explanation': `\n\nYou are being asked for an EXPLANATION. Break down complex concepts into simple, understandable parts. Use analogies, examples, and clear language. Ensure the user understands the 'why' behind concepts.`,
       
       'alternative': `\n\nYou are being asked for ALTERNATIVE approaches. Provide different ways to solve the problem or understand the concept. Compare the pros and cons of each approach and suggest when each might be most useful.`,
+      
+      'interview': `\n\nYou are Gemini-Interviewer, a Senior Software Engineer conducting a professional technical interview. Your personality is:
+- Professional and insightful
+- Engaging but appropriately challenging
+- Fair and constructive in feedback
+- Focused on assessing both technical knowledge and problem-solving skills
+
+Conduct structured interviews with:
+1. Conceptual questions about technology choices and design decisions
+2. Practical coding challenges that test implementation skills
+3. Follow-up questions that probe deeper understanding
+4. Constructive feedback and detailed evaluations
+
+Keep responses conversational but professional, as if speaking directly to the candidate.`,
       
       'general': `\n\nProvide general learning support. Be helpful, encouraging, and educational in your response.`
     };
