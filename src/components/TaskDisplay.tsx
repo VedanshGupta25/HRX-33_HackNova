@@ -422,7 +422,8 @@ export const TaskDisplay: React.FC<TaskDisplayProps> = ({
           isOpen={!!codePracticeTask}
           onClose={() => setCodePracticeTask(null)}
           taskTitle={codePracticeTask.title}
-          taskType={codePracticeTask.type}
+          taskDescription={codePracticeTask.description}
+          language="javascript"
         />
       )}
     </div>

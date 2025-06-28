@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,31 +13,38 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface MonacoEditorProps {
-  initialCode?: string;
+  value?: string;
+  onChange?: (code: string) => void;
   language?: string;
+  height?: string;
   theme?: 'light' | 'dark';
   readOnly?: boolean;
-  onCodeChange?: (code: string) => void;
   onRun?: (code: string) => void;
 }
 
 export const MonacoEditor: React.FC<MonacoEditorProps> = ({
-  initialCode = '',
+  value = '',
+  onChange,
   language = 'javascript',
+  height = '100%',
   theme = 'light',
   readOnly = false,
-  onCodeChange,
   onRun
 }) => {
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const [code, setCode] = React.useState(initialCode);
+  const [code, setCode] = React.useState(value);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const { toast } = useToast();
+
+  // Update internal state when value prop changes
+  React.useEffect(() => {
+    setCode(value);
+  }, [value]);
 
   // Simple fallback editor (since Monaco Editor requires complex setup)
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
-    onCodeChange?.(newCode);
+    onChange?.(newCode);
   };
 
   const handleRun = () => {
@@ -121,8 +127,8 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
     <Card className={`transition-all duration-300 ${
       isFullscreen 
         ? 'fixed inset-4 z-50 h-[calc(100vh-2rem)] w-[calc(100vw-2rem)]' 
-        : 'h-96'
-    } bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700`}>
+        : ''
+    } bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700`} style={{ height }}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
           <Code2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
