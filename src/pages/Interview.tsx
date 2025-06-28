@@ -237,6 +237,7 @@ const Interview = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<'projects' | 'prep'>('projects');
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -261,6 +262,7 @@ const Interview = () => {
 
   const startInterview = async (project: InterviewProject) => {
     setSelectedProject(project);
+    setError(null);
     const newSession: InterviewSession = {
       id: `interview_${Date.now()}`,
       project,
@@ -312,6 +314,7 @@ Begin by introducing yourself and asking your first conceptual question about th
       } : null);
     } catch (error) {
       console.error('Error starting interview:', error);
+      setError('Failed to start interview. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -319,6 +322,7 @@ Begin by introducing yourself and asking your first conceptual question about th
 
   const sendMessage = async () => {
     if (!currentInput.trim() || !session || isLoading) return;
+    setError(null);
 
     const userMessage: Message = {
       role: 'user',
@@ -384,6 +388,7 @@ Begin by introducing yourself and asking your first conceptual question about th
       }
     } catch (error) {
       console.error('Error sending message:', error);
+      setError('Failed to get a response from the AI interviewer. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -391,8 +396,8 @@ Begin by introducing yourself and asking your first conceptual question about th
 
   const submitCodingChallenge = async () => {
     if (!session?.codingChallenge) return;
-
     setIsLoading(true);
+    setError(null);
     try {
       const evaluationPrompt = `The candidate has submitted their coding solution. Here is their code:
 
@@ -419,6 +424,7 @@ Format your response as a structured evaluation report.`;
       await generateEvaluation(session, response);
     } catch (error) {
       console.error('Error submitting coding challenge:', error);
+      setError('Failed to submit coding challenge. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -499,6 +505,11 @@ Format your response as a structured evaluation report.`;
       <Header />
       <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto">
+          {error && (
+            <div className="mb-6 p-4 bg-red-900/80 text-red-200 rounded-lg border border-red-500 animate-pulse text-center font-semibold">
+              {error}
+            </div>
+          )}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-4">
               🎯 Technical Interview Practice

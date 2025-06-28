@@ -1,4 +1,5 @@
-const GEMINI_API_KEY = 'AIzaSyBp56tXJeRyqBHoXJ86LlVabpPRpYM8t6o';
+const GEMINI_API_KEY = 'AIzaSyDOnF9uiH2vXtqTu2Y-PNJ4EhPWApFE31c';
+const GEMINI_API_KEY_BACKUP = 'AIzaSyDow_jx0BdrvPHkKP8fo4_tKs3DscbiJRA';
 
 export interface ChatMessage {
   role: 'user' | 'model';
@@ -59,19 +60,22 @@ export class GeminiChatService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Gemini API error:', response.status, errorText);
-        throw new Error(`Gemini API error: ${response.status} ${errorText}`);
+        // Fallback: return a friendly message
+        return 'Sorry, the AI interviewer is temporarily unavailable. Please try again in a few moments.';
       }
 
       const data = await response.json();
       
       if (!data.candidates || data.candidates.length === 0) {
-        throw new Error('No response generated');
+        // Fallback: return a friendly message
+        return 'Sorry, the AI interviewer could not generate a response right now. Please try again soon.';
       }
 
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
       console.error('Gemini API error:', error);
-      throw error;
+      // Fallback: return a friendly message
+      return 'Sorry, there was a technical issue with the AI interviewer. Please try again later.';
     }
   }
 
