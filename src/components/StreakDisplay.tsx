@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Flame, Trophy, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,34 +14,33 @@ export const StreakDisplay: React.FC<StreakDisplayProps> = ({
   totalTasksCompleted
 }) => {
   return (
-    <div className="grid grid-cols-3 gap-4 mb-6">
-      <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-        <CardContent className="p-4 text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Flame className="h-8 w-8 text-orange-500" />
-          </div>
-          <div className="text-2xl font-bold text-orange-700">{currentStreak}</div>
-          <div className="text-sm text-orange-600">Day Streak</div>
+    <div className="relative grid grid-cols-3 gap-8 mb-8">
+      {/* Cosmic Particle Overlay */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="star-field opacity-60 w-full h-full absolute inset-0 animate-twinkle" />
+      </div>
+      {/* Day Streak */}
+      <Card className="relative z-10 bg-gradient-to-br from-[#1a1333] to-[#2d1b4c] border-4 border-orange-400/80 shadow-[0_0_32px_8px_rgba(251,146,60,0.4)] rounded-3xl backdrop-blur-2xl glassmorphism animate-cosmic-glow">
+        <CardContent className="p-8 text-center flex flex-col items-center gap-3">
+          <Flame className="h-10 w-10 text-orange-400 animate-glow animate-float drop-shadow-[0_0_12px_orange]" />
+          <div className="text-4xl font-extrabold text-orange-200 animate-glow drop-shadow-[0_0_8px_orange]">{currentStreak}</div>
+          <div className="text-lg text-orange-300 font-semibold tracking-wide uppercase">Day Streak</div>
         </CardContent>
       </Card>
-      
-      <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200">
-        <CardContent className="p-4 text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Trophy className="h-8 w-8 text-yellow-500" />
-          </div>
-          <div className="text-2xl font-bold text-yellow-700">{longestStreak}</div>
-          <div className="text-sm text-yellow-600">Best Streak</div>
+      {/* Best Streak */}
+      <Card className="relative z-10 bg-gradient-to-br from-[#2d1b4c] to-[#3a1c5c] border-4 border-pink-400/80 shadow-[0_0_32px_8px_rgba(244,114,182,0.4)] rounded-3xl backdrop-blur-2xl glassmorphism animate-cosmic-glow">
+        <CardContent className="p-8 text-center flex flex-col items-center gap-3">
+          <Trophy className="h-10 w-10 text-pink-400 animate-glow animate-float-delayed drop-shadow-[0_0_12px_pink]" />
+          <div className="text-4xl font-extrabold text-pink-200 animate-glow drop-shadow-[0_0_8px_pink]">{longestStreak}</div>
+          <div className="text-lg text-pink-300 font-semibold tracking-wide uppercase">Best Streak</div>
         </CardContent>
       </Card>
-      
-      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-        <CardContent className="p-4 text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Target className="h-8 w-8 text-green-500" />
-          </div>
-          <div className="text-2xl font-bold text-green-700">{totalTasksCompleted}</div>
-          <div className="text-sm text-green-600">Tasks Done</div>
+      {/* Tasks Done */}
+      <Card className="relative z-10 bg-gradient-to-br from-[#13331a] to-[#1b4c2d] border-4 border-green-400/80 shadow-[0_0_32px_8px_rgba(52,211,153,0.4)] rounded-3xl backdrop-blur-2xl glassmorphism animate-cosmic-glow">
+        <CardContent className="p-8 text-center flex flex-col items-center gap-3">
+          <Target className="h-10 w-10 text-green-400 animate-glow animate-float drop-shadow-[0_0_12px_lime]" />
+          <div className="text-4xl font-extrabold text-green-200 animate-glow drop-shadow-[0_0_8px_lime]">{totalTasksCompleted}</div>
+          <div className="text-lg text-green-300 font-semibold tracking-wide uppercase">Tasks Done</div>
         </CardContent>
       </Card>
     </div>

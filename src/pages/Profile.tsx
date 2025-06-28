@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,20 +99,27 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black transition-all duration-300 relative overflow-hidden space-scrollbar">
+      {/* Animated background stars */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-60"></div>
+        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-star-twinkle-delayed opacity-80"></div>
+        <div className="absolute top-60 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-star-twinkle opacity-70"></div>
+        <div className="absolute top-80 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-star-twinkle-delayed opacity-90"></div>
+        <div className="absolute top-96 left-1/2 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-50"></div>
+      </div>
       <Header />
-      
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">Customize Your Profile</h1>
-            <p className="text-xl text-gray-600 mb-8">Personalize your learning experience</p>
+            <h1 className="text-4xl font-bold text-white mb-4">Customize Your Profile</h1>
+            <p className="text-xl text-gray-300 mb-8">Personalize your learning experience</p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Profile Avatar & Basic Info */}
-            <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
+            <Card className="lg:col-span-1 bg-black/30 backdrop-blur-md shadow-lg border-purple-500/30 hover:shadow-xl transition-all duration-300 animate-cosmic-glow">
+              <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
                 <div className="flex justify-center mb-4">
                   <div className="relative group">
                     <Avatar className="w-24 h-24 border-4 border-white/30 cursor-pointer" onClick={handleAvatarClick}>
@@ -144,25 +150,25 @@ const Profile = () => {
               </CardHeader>
               <CardContent className="space-y-4 p-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">Name</label>
                   <Input
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="bg-black/40 border-purple-500/30 text-white placeholder:text-purple-300 focus:border-purple-400 focus:ring-purple-400"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">Experience Level</label>
                   <Select value={experienceLevel} onValueChange={setExperienceLevel}>
-                    <SelectTrigger className="bg-white border-gray-300 focus:border-blue-500">
+                    <SelectTrigger className="bg-black/40 border-purple-500/30 text-white focus:border-purple-400">
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-300">
-                      <SelectItem value="beginner" className="hover:bg-blue-50">Beginner</SelectItem>
-                      <SelectItem value="intermediate" className="hover:bg-blue-50">Intermediate</SelectItem>
-                      <SelectItem value="advanced" className="hover:bg-blue-50">Advanced</SelectItem>
+                    <SelectContent className="bg-black/40 border-purple-500/30 text-white">
+                      <SelectItem value="beginner" className="hover:bg-purple-900/40">Beginner</SelectItem>
+                      <SelectItem value="intermediate" className="hover:bg-purple-900/40">Intermediate</SelectItem>
+                      <SelectItem value="advanced" className="hover:bg-purple-900/40">Advanced</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -170,7 +176,7 @@ const Profile = () => {
                 <Button
                   onClick={handleAvatarClick}
                   variant="outline"
-                  className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                  className="w-full bg-purple-900/40 border-purple-500/30 text-purple-200 hover:bg-purple-900/60 animate-cosmic-glow"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload New Avatar
@@ -179,8 +185,8 @@ const Profile = () => {
             </Card>
 
             {/* Interests & Goals */}
-            <Card className="lg:col-span-2 bg-white/80 backdrop-blur-sm shadow-lg border-0 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
+            <Card className="lg:col-span-2 bg-black/30 backdrop-blur-md shadow-lg border-purple-500/30 hover:shadow-xl transition-all duration-300 animate-cosmic-glow">
+              <CardHeader className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5" />
                   <CardTitle>Your Interests</CardTitle>
@@ -199,58 +205,33 @@ const Profile = () => {
                       onClick={() => toggleInterest(interest)}
                       className={`text-sm transition-all ${
                         selectedInterests.includes(interest)
-                          ? 'bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white border-0'
-                          : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400'
+                          ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-none animate-cosmic-glow'
+                          : 'bg-black/40 border-purple-500/30 text-purple-200 hover:bg-purple-900/40'
                       }`}
                     >
                       {interest}
                     </Button>
                   ))}
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-5 w-5 text-blue-600" />
-                    <h3 className="text-gray-800 font-semibold">Background & Goals</h3>
-                  </div>
-                  <textarea
-                    placeholder="Tell us about your educational background, current projects, and learning goals..."
+                <div>
+                  <label className="block text-sm font-medium text-purple-200 mb-2">Background</label>
+                  <Input
+                    placeholder="E.g. Computer Science student, hobbyist, etc."
                     value={background}
                     onChange={(e) => setBackground(e.target.value)}
-                    rows={4}
-                    className="w-full p-3 rounded-md bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="bg-black/40 border-purple-500/30 text-white placeholder:text-purple-300 focus:border-purple-400 focus:ring-purple-400"
                   />
                 </div>
+                <Button
+                  onClick={handleSaveProfile}
+                  className="mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-lg transition-all transform hover:scale-105 disabled:transform-none disabled:opacity-50 animate-cosmic-glow"
+                >
+                  <Save className="h-5 w-5 mr-2" />
+                  Save Profile
+                </Button>
               </CardContent>
             </Card>
           </div>
-
-          {/* Save Button */}
-          <div className="mt-8 text-center">
-            <Button 
-              onClick={handleSaveProfile}
-              className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-all"
-            >
-              <Save className="h-5 w-5 mr-2" />
-              Save Profile
-            </Button>
-          </div>
-
-          {/* Selected Interests Display */}
-          {selectedInterests.length > 0 && (
-            <Card className="mt-8 bg-white/80 backdrop-blur-sm shadow-lg border-0">
-              <CardContent className="p-6">
-                <h3 className="text-gray-800 font-medium mb-3">Selected Interests ({selectedInterests.length})</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedInterests.map((interest) => (
-                    <Badge key={interest} className="bg-gradient-to-r from-blue-600 to-green-600 text-white border-0">
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </main>
     </div>

@@ -1,5 +1,4 @@
-
-const GEMINI_API_KEY = 'AIzaSyAQHHc54w-TRYRp0YaqWdeZQCwfvIgMu7Y';
+const GEMINI_API_KEY = 'AIzaSyBp56tXJeRyqBHoXJ86LlVabpPRpYM8t6o';
 
 export interface ChatMessage {
   role: 'user' | 'model';
