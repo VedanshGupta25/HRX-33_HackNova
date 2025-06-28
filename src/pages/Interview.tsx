@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,9 @@ import {
   CheckCircle,
   AlertCircle,
   Play,
-  ExternalLink
+  ExternalLink,
+  Users,
+  Mic
 } from 'lucide-react';
 
 interface Message {
@@ -235,6 +238,7 @@ const Interview = () => {
   const [currentInput, setCurrentInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [activeSection, setActiveSection] = useState<'projects' | 'prep'>('projects');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -488,302 +492,467 @@ Format your response as a structured evaluation report.`;
     <div className="min-h-screen bg-background">
       <Header />
       
+      {/* Address Bar */}
+      <div className="bg-muted/50 border-b border-border">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="bg-background border border-border rounded px-3 py-1 flex items-center space-x-2 flex-1 max-w-md">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="font-mono">https://eduai.lovable.app/interview</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              🤖 Gemini Technical Interview
+              🎯 Technical Interview Practice
             </h1>
             <p className="text-muted-foreground text-lg">
-              Experience realistic technical interviews based on your completed projects
+              Experience realistic technical interviews and improve your conversational skills
             </p>
-            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                <strong>Demo Vision:</strong> Type <code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">gemini interview --mission-id=flask-api-01</code> 
-                to simulate a professional technical interview experience!
-              </p>
+          </div>
+
+          {/* Section Navigation */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-muted rounded-lg p-1 flex">
+              <Button
+                variant={activeSection === 'projects' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveSection('projects')}
+                className="flex items-center gap-2"
+              >
+                <Code2 className="h-4 w-4" />
+                Project-Based Interview
+              </Button>
+              <Button
+                variant={activeSection === 'prep' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveSection('prep')}
+                className="flex items-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Interview Prep
+              </Button>
             </div>
           </div>
 
-          {!session ? (
+          {activeSection === 'prep' && (
             <div className="space-y-6">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-semibold mb-2">Select Your Completed Project</h2>
-                <p className="text-muted-foreground">Choose a project you've completed to base your interview on</p>
-              </div>
-              
-              <div className="grid gap-6">
-                {SAMPLE_PROJECTS.map((project) => (
-                  <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-primary" onClick={() => startInterview(project)}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="flex items-center gap-2 text-xl">
-                            <Code2 className="h-5 w-5" />
-                            {project.title}
-                            <Badge variant="outline">{project.difficulty}</Badge>
-                          </CardTitle>
-                          <CardDescription className="mt-2 text-base">
-                            {project.description}
-                          </CardDescription>
-                        </div>
-                        <Button variant="outline" size="sm" className="ml-4">
-                          <Play className="h-4 w-4 mr-2" />
-                          Start Interview
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {project.technologies.map((tech) => (
-                          <Badge key={tech} variant="secondary" className="text-xs">
-                            {tech}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          15-20 minutes
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Brain className="h-4 w-4" />
-                          Technical + Coding
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Interview Header */}
-              <Card className="border-l-4 border-l-green-500">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2 text-xl">
-                        <Trophy className="h-5 w-5" />
-                        {session.project.title} Interview
-                        <Badge variant="outline" className="capitalize">{session.phase}</Badge>
-                      </CardTitle>
-                      <CardDescription className="mt-1">
-                        Interviewing with Gemini-Interviewer • Started {session.startTime.toLocaleTimeString()}
-                      </CardDescription>
-                    </div>
-                    {timeRemaining !== null && (
-                      <div className="text-right">
-                        <div className={`text-3xl font-mono font-bold ${timeRemaining <= 60 ? 'text-destructive animate-pulse' : 'text-primary'}`}>
-                          {formatTime(timeRemaining)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">Coding Challenge</div>
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-              </Card>
-
-              {/* Chat Interface */}
-              <Card>
+              <Card className="border-l-4 border-l-blue-500">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <MessageCircle className="h-5 w-5" />
-                    Interview Conversation
+                    <Users className="h-5 w-5" />
+                    Interview Preparation & Conversational Skills
                   </CardTitle>
+                  <CardDescription>
+                    Practice common interview questions and improve your communication skills
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-96 w-full pr-4">
-                    <div className="space-y-4">
-                      {session.messages.map((message, index) => (
-                        <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[85%] p-4 rounded-lg ${
-                            message.role === 'user' 
-                              ? 'bg-primary text-primary-foreground ml-4' 
-                              : 'bg-muted mr-4'
-                          }`}>
-                            <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                              {message.role === 'user' ? (
-                                <>
-                                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
-                                    You
-                                  </div>
-                                  Candidate
-                                </>
-                              ) : (
-                                <>
-                                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
-                                    🤖
-                                  </div>
-                                  Gemini-Interviewer
-                                </>
-                              )}
-                            </div>
-                            <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
-                            <div className="text-xs opacity-70 mt-2">
-                              {message.timestamp.toLocaleTimeString()}
-                            </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <MessageCircle className="h-5 w-5" />
+                          Behavioral Questions
+                        </CardTitle>
+                        <CardDescription>
+                          Practice answering common behavioral interview questions with AI feedback
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            10-15 minutes
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Brain className="h-4 w-4" />
+                            Communication Focus
                           </div>
                         </div>
-                      ))}
-                      {isLoading && (
-                        <div className="flex justify-start">
-                          <div className="bg-muted p-4 rounded-lg mr-4 flex items-center gap-3">
-                            <LoadingSpinner />
-                            <span className="text-sm">Gemini-Interviewer is thinking...</span>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  </ScrollArea>
-
-                  {session.phase !== 'complete' && session.phase !== 'coding' && (
-                    <>
-                      <Separator className="my-4" />
-                      <div className="flex gap-2">
-                        <Textarea
-                          placeholder="Type your response..."
-                          value={currentInput}
-                          onChange={(e) => setCurrentInput(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
-                          rows={3}
-                        />
-                        <Button onClick={sendMessage} disabled={isLoading || !currentInput.trim()}>
-                          Send
+                        <Button className="w-full mt-4" disabled>
+                          <Play className="h-4 w-4 mr-2" />
+                          Coming Soon
                         </Button>
-                      </div>
-                    </>
-                  )}
+                      </CardContent>
+                    </Card>
+
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Mic className="h-5 w-5" />
+                          Technical Storytelling
+                        </CardTitle>
+                        <CardDescription>
+                          Learn to explain complex technical concepts clearly and concisely
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            15-20 minutes
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Explanation Skills
+                          </div>
+                        </div>
+                        <Button className="w-full mt-4" disabled>
+                          <Play className="h-4 w-4 mr-2" />
+                          Coming Soon
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Brain className="h-5 w-5" />
+                          System Design Discussion
+                        </CardTitle>
+                        <CardDescription>
+                          Practice discussing system architecture and design decisions
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            20-30 minutes
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Code2 className="h-4 w-4" />
+                            Architecture Focus
+                          </div>
+                        </div>
+                        <Button className="w-full mt-4" disabled>
+                          <Play className="h-4 w-4 mr-2" />
+                          Coming Soon
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Trophy className="h-5 w-5" />
+                          Mock Panel Interview
+                        </CardTitle>
+                        <CardDescription>
+                          Experience a full panel interview simulation with multiple AI interviewers
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            45-60 minutes
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            Full Experience
+                          </div>
+                        </div>
+                        <Button className="w-full mt-4" disabled>
+                          <Play className="h-4 w-4 mr-2" />
+                          Coming Soon
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </CardContent>
               </Card>
-
-              {/* Coding Challenge */}
-              {session.phase === 'coding' && session.codingChallenge && (
-                <Card className="border-l-4 border-l-orange-500">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Code2 className="h-5 w-5" />
-                      Live Coding Challenge
-                      {timeRemaining !== null && timeRemaining <= 60 && (
-                        <Badge variant="destructive" className="ml-2 animate-pulse">
-                          <AlertCircle className="h-3 w-3 mr-1" />
-                          {formatTime(timeRemaining)}
-                        </Badge>
-                      )}
-                    </CardTitle>
-                    <CardDescription>
-                      {session.codingChallenge.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex gap-2">
-                        <Button onClick={openInEditor} variant="outline" className="flex-1">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Open in VS Code Web
-                        </Button>
-                        <Button onClick={() => CodeUtils.openVSCode()} variant="outline" className="flex-1">
-                          <Code2 className="h-4 w-4 mr-2" />
-                          Open in VS Code Desktop
-                        </Button>
-                      </div>
-                      
-                      <Textarea
-                        placeholder="Paste your solution here or write it directly..."
-                        value={session.codingChallenge.solution}
-                        onChange={(e) => setSession(prev => prev ? {
-                          ...prev,
-                          codingChallenge: prev.codingChallenge ? {
-                            ...prev.codingChallenge,
-                            solution: e.target.value
-                          } : undefined
-                        } : null)}
-                        rows={12}
-                        className="font-mono text-sm"
-                      />
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="text-sm text-muted-foreground">
-                          Complete the coding challenge and submit when ready
-                        </div>
-                        <Button onClick={submitCodingChallenge} disabled={isLoading}>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Submit Solution
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Final Evaluation */}
-              {session.phase === 'complete' && session.evaluation && (
-                <Card className="border-l-4 border-l-green-500">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Trophy className="h-5 w-5" />
-                      Interview Results & Evaluation
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      {/* Scores */}
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div className="text-center p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                          <div className="text-3xl font-bold text-blue-600">{session.evaluation.conceptualScore}/10</div>
-                          <div className="text-sm text-muted-foreground">Conceptual Understanding</div>
-                        </div>
-                        <div className="text-center p-4 bg-green-50 dark:bg-green-950 rounded-lg">
-                          <div className="text-3xl font-bold text-green-600">{session.evaluation.codingScore}/10</div>
-                          <div className="text-sm text-muted-foreground">Coding Skills</div>
-                        </div>
-                        <div className="text-center p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
-                          <div className="text-3xl font-bold text-purple-600">{session.evaluation.overallScore}%</div>
-                          <div className="text-sm text-muted-foreground">Overall Score</div>
-                        </div>
-                      </div>
-
-                      {/* Summary */}
-                      <div>
-                        <h3 className="font-semibold mb-2">Overall Summary</h3>
-                        <p className="text-muted-foreground">{session.evaluation.summary}</p>
-                      </div>
-
-                      {/* Strengths & Improvements */}
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                          <h3 className="font-semibold mb-3 text-green-600">Key Strengths</h3>
-                          <ul className="space-y-2">
-                            {session.evaluation.strengths.map((strength, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                <span className="text-sm">{strength}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold mb-3 text-orange-600">Areas for Improvement</h3>
-                          <ul className="space-y-2">
-                            {session.evaluation.improvements.map((improvement, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                                <span className="text-sm">{improvement}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      <Button onClick={() => {setSession(null); setSelectedProject(null);}} className="w-full">
-                        Start New Interview
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
+          )}
+
+          {activeSection === 'projects' && (
+            <>
+              {!session ? (
+                <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-semibold mb-2">Select Your Completed Project</h2>
+                    <p className="text-muted-foreground">Choose a project you've completed to base your interview on</p>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    {SAMPLE_PROJECTS.map((project) => (
+                      <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-primary" onClick={() => startInterview(project)}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <CardTitle className="flex items-center gap-2 text-xl">
+                                <Code2 className="h-5 w-5" />
+                                {project.title}
+                                <Badge variant="outline">{project.difficulty}</Badge>
+                              </CardTitle>
+                              <CardDescription className="mt-2 text-base">
+                                {project.description}
+                              </CardDescription>
+                            </div>
+                            <Button variant="outline" size="sm" className="ml-4">
+                              <Play className="h-4 w-4 mr-2" />
+                              Start Interview
+                            </Button>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {project.technologies.map((tech) => (
+                              <Badge key={tech} variant="secondary" className="text-xs">
+                                {tech}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              15-20 minutes
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Brain className="h-4 w-4" />
+                              Technical + Coding
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Interview Header */}
+                  <Card className="border-l-4 border-l-green-500">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2 text-xl">
+                            <Trophy className="h-5 w-5" />
+                            {session.project.title} Interview
+                            <Badge variant="outline" className="capitalize">{session.phase}</Badge>
+                          </CardTitle>
+                          <CardDescription className="mt-1">
+                            Interviewing with AI Interviewer • Started {session.startTime.toLocaleTimeString()}
+                          </CardDescription>
+                        </div>
+                        {timeRemaining !== null && (
+                          <div className="text-right">
+                            <div className={`text-3xl font-mono font-bold ${timeRemaining <= 60 ? 'text-destructive animate-pulse' : 'text-primary'}`}>
+                              {formatTime(timeRemaining)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Coding Challenge</div>
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+                  </Card>
+
+                  {/* Chat Interface */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MessageCircle className="h-5 w-5" />
+                        Interview Conversation
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="h-96 w-full pr-4">
+                        <div className="space-y-4">
+                          {session.messages.map((message, index) => (
+                            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-[85%] p-4 rounded-lg ${
+                                message.role === 'user' 
+                                  ? 'bg-primary text-primary-foreground ml-4' 
+                                  : 'bg-muted mr-4'
+                              }`}>
+                                <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                                  {message.role === 'user' ? (
+                                    <>
+                                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                                        You
+                                      </div>
+                                      Candidate
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
+                                        🤖
+                                      </div>
+                                      AI Interviewer
+                                    </>
+                                  )}
+                                </div>
+                                <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
+                                <div className="text-xs opacity-70 mt-2">
+                                  {message.timestamp.toLocaleTimeString()}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          {isLoading && (
+                            <div className="flex justify-start">
+                              <div className="bg-muted p-4 rounded-lg mr-4 flex items-center gap-3">
+                                <LoadingSpinner />
+                                <span className="text-sm">AI Interviewer is thinking...</span>
+                              </div>
+                            </div>
+                          )}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      </ScrollArea>
+
+                      {session.phase !== 'complete' && session.phase !== 'coding' && (
+                        <>
+                          <Separator className="my-4" />
+                          <div className="flex gap-2">
+                            <Textarea
+                              placeholder="Type your response..."
+                              value={currentInput}
+                              onChange={(e) => setCurrentInput(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
+                              rows={3}
+                            />
+                            <Button onClick={sendMessage} disabled={isLoading || !currentInput.trim()}>
+                              Send
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Coding Challenge */}
+                  {session.phase === 'coding' && session.codingChallenge && (
+                    <Card className="border-l-4 border-l-orange-500">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Code2 className="h-5 w-5" />
+                          Live Coding Challenge
+                          {timeRemaining !== null && timeRemaining <= 60 && (
+                            <Badge variant="destructive" className="ml-2 animate-pulse">
+                              <AlertCircle className="h-3 w-3 mr-1" />
+                              {formatTime(timeRemaining)}
+                            </Badge>
+                          )}
+                        </CardTitle>
+                        <CardDescription>
+                          {session.codingChallenge.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex gap-2">
+                            <Button onClick={openInEditor} variant="outline" className="flex-1">
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Open in VS Code Web
+                            </Button>
+                            <Button onClick={() => CodeUtils.openVSCode()} variant="outline" className="flex-1">
+                              <Code2 className="h-4 w-4 mr-2" />
+                              Open in VS Code Desktop
+                            </Button>
+                          </div>
+                          
+                          <Textarea
+                            placeholder="Paste your solution here or write it directly..."
+                            value={session.codingChallenge.solution}
+                            onChange={(e) => setSession(prev => prev ? {
+                              ...prev,
+                              codingChallenge: prev.codingChallenge ? {
+                                ...prev.codingChallenge,
+                                solution: e.target.value
+                              } : undefined
+                            } : null)}
+                            rows={12}
+                            className="font-mono text-sm"
+                          />
+                          
+                          <div className="flex justify-between items-center">
+                            <div className="text-sm text-muted-foreground">
+                              Complete the coding challenge and submit when ready
+                            </div>
+                            <Button onClick={submitCodingChallenge} disabled={isLoading}>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Submit Solution
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Final Evaluation */}
+                  {session.phase === 'complete' && session.evaluation && (
+                    <Card className="border-l-4 border-l-green-500">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Trophy className="h-5 w-5" />
+                          Interview Results & Evaluation
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-6">
+                          {/* Scores */}
+                          <div className="grid md:grid-cols-3 gap-4">
+                            <div className="text-center p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                              <div className="text-3xl font-bold text-blue-600">{session.evaluation.conceptualScore}/10</div>
+                              <div className="text-sm text-muted-foreground">Conceptual Understanding</div>
+                            </div>
+                            <div className="text-center p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                              <div className="text-3xl font-bold text-green-600">{session.evaluation.codingScore}/10</div>
+                              <div className="text-sm text-muted-foreground">Coding Skills</div>
+                            </div>
+                            <div className="text-center p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                              <div className="text-3xl font-bold text-purple-600">{session.evaluation.overallScore}%</div>
+                              <div className="text-sm text-muted-foreground">Overall Score</div>
+                            </div>
+                          </div>
+
+                          {/* Summary */}
+                          <div>
+                            <h3 className="font-semibold mb-2">Overall Summary</h3>
+                            <p className="text-muted-foreground">{session.evaluation.summary}</p>
+                          </div>
+
+                          {/* Strengths & Improvements */}
+                          <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                              <h3 className="font-semibold mb-3 text-green-600">Key Strengths</h3>
+                              <ul className="space-y-2">
+                                {session.evaluation.strengths.map((strength, index) => (
+                                  <li key={index} className="flex items-start gap-2">
+                                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm">{strength}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h3 className="font-semibold mb-3 text-orange-600">Areas for Improvement</h3>
+                              <ul className="space-y-2">
+                                {session.evaluation.improvements.map((improvement, index) => (
+                                  <li key={index} className="flex items-start gap-2">
+                                    <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm">{improvement}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+
+                          <Button onClick={() => {setSession(null); setSelectedProject(null);}} className="w-full">
+                            Start New Interview
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -792,3 +961,4 @@ Format your response as a structured evaluation report.`;
 };
 
 export default Interview;
+
