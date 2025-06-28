@@ -73,23 +73,44 @@ const SignUp = () => {
 
     setIsLoading(true);
     
-    // Mock account creation - replace with your preferred auth solution
+    // Mock account creation
     setTimeout(() => {
+      const mockUser = {
+        email: formData.email,
+        name: `${formData.firstName} ${formData.lastName}`,
+        experienceLevel: formData.experienceLevel,
+        interests: formData.interests
+      };
+      
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
       toast({
         title: "Welcome to EduAI! 🎉",
-        description: "Your account has been created successfully (demo mode)!",
+        description: "Your account has been created successfully!",
       });
-      navigate('/signin');
+      navigate('/');
       setIsLoading(false);
     }, 1000);
   };
 
   const handleSocialSignUp = async (provider: string) => {
-    toast({
-      title: "Social Sign Up",
-      description: `${provider} authentication not configured (demo mode)`,
-      variant: "destructive",
-    });
+    setIsLoading(true);
+    
+    // Mock social authentication
+    setTimeout(() => {
+      const mockUser = {
+        email: `user@${provider.toLowerCase()}.com`,
+        name: `${provider} User`
+      };
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      toast({
+        title: "Welcome to EduAI! 🎉",
+        description: `Account created with ${provider} successfully!`,
+      });
+      navigate('/');
+      setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -113,6 +134,7 @@ const SignUp = () => {
                   onClick={() => handleSocialSignUp('Google')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-red-50 hover:border-red-300 border-gray-300"
+                  disabled={isLoading}
                 >
                   <Chrome className="h-4 w-4 text-red-500" />
                   Google
@@ -122,6 +144,7 @@ const SignUp = () => {
                   onClick={() => handleSocialSignUp('GitHub')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
+                  disabled={isLoading}
                 >
                   <Github className="h-4 w-4" />
                   GitHub
@@ -131,6 +154,7 @@ const SignUp = () => {
                   onClick={() => handleSocialSignUp('Facebook')}
                   variant="outline" 
                   className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
+                  disabled={isLoading}
                 >
                   <Facebook className="h-4 w-4 text-blue-600" />
                   Facebook

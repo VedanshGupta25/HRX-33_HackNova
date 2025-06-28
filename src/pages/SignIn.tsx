@@ -24,9 +24,11 @@ const SignIn = () => {
     // Mock authentication - replace with your preferred auth solution
     setTimeout(() => {
       if (email && password) {
+        // Store mock user session
+        localStorage.setItem('user', JSON.stringify({ email, name: email.split('@')[0] }));
         toast({
           title: "Welcome back!",
-          description: "Sign in successful (demo mode)",
+          description: "Sign in successful",
         });
         navigate('/');
       } else {
@@ -41,11 +43,23 @@ const SignIn = () => {
   };
 
   const handleSocialSignIn = async (provider: string) => {
-    toast({
-      title: "Social Sign In",
-      description: `${provider} authentication not configured (demo mode)`,
-      variant: "destructive",
-    });
+    setIsLoading(true);
+    
+    // Mock social authentication
+    setTimeout(() => {
+      const mockUser = {
+        email: `user@${provider.toLowerCase()}.com`,
+        name: `${provider} User`
+      };
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      toast({
+        title: "Welcome!",
+        description: `Signed in with ${provider} successfully`,
+      });
+      navigate('/');
+      setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -69,6 +83,7 @@ const SignIn = () => {
                   onClick={() => handleSocialSignIn('Google')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-red-50 hover:border-red-300 border-gray-300"
+                  disabled={isLoading}
                 >
                   <Chrome className="h-5 w-5 text-red-500" />
                   Continue with Google
@@ -78,6 +93,7 @@ const SignIn = () => {
                   onClick={() => handleSocialSignIn('GitHub')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
+                  disabled={isLoading}
                 >
                   <Github className="h-5 w-5" />
                   Continue with GitHub
@@ -87,6 +103,7 @@ const SignIn = () => {
                   onClick={() => handleSocialSignIn('Facebook')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
+                  disabled={isLoading}
                 >
                   <Facebook className="h-5 w-5 text-blue-600" />
                   Continue with Facebook
