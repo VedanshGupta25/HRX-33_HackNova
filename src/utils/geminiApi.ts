@@ -1,3 +1,4 @@
+
 export interface TaskGenerationRequest {
   input: string;
   inputType: 'concept' | 'transcript';
@@ -20,7 +21,7 @@ export interface Task {
   showCodePractice?: boolean;
 }
 
-const GEMINI_API_KEY = 'AIzaSyC6wBQhfbeVJ5wfWg6lvXd6-CaEEP7CGvI';
+const GEMINI_API_KEY = 'AIzaSyBRxr4-39V02IuqRxYjwo1XaDPAijwDWiI';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 export class GeminiApiService {

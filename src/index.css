@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -135,41 +136,6 @@
   .animate-theme-transition {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  /* Space-themed animations */
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-float-delayed {
-    animation: float 6s ease-in-out infinite;
-    animation-delay: 2s;
-  }
-
-  .animate-float-slow {
-    animation: float 8s ease-in-out infinite;
-  }
-
-  .animate-cosmic-glow {
-    animation: cosmic-glow 4s ease-in-out infinite alternate;
-  }
-
-  .animate-star-twinkle {
-    animation: star-twinkle 3s ease-in-out infinite;
-  }
-
-  .animate-star-twinkle-delayed {
-    animation: star-twinkle 3s ease-in-out infinite;
-    animation-delay: 1.5s;
-  }
-
-  .animate-orbit {
-    animation: orbit 20s linear infinite;
-  }
-
-  .animate-orbit-reverse {
-    animation: orbit 15s linear infinite reverse;
-  }
 }
 
 @keyframes slide-up {
@@ -209,45 +175,6 @@
   }
 }
 
-/* Space-themed keyframes */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-@keyframes cosmic-glow {
-  from {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
-  }
-  to {
-    box-shadow: 0 0 30px rgba(147, 51, 234, 0.6), 0 0 60px rgba(59, 130, 246, 0.4);
-  }
-}
-
-@keyframes star-twinkle {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-}
-
-@keyframes orbit {
-  from {
-    transform: rotate(0deg) translateX(20px) rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg) translateX(20px) rotate(-360deg);
-  }
-}
-
 /* Scrollbar styling for dark mode */
 ::-webkit-scrollbar {
   width: 8px;
@@ -266,23 +193,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--accent));
-}
-
-/* Custom scrollbar for space theme */
-.space-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.space-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
-}
-
-.space-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(147, 51, 234, 0.5), rgba(59, 130, 246, 0.5));
-  border-radius: 3px;
-}
-
-.space-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.8));
 }

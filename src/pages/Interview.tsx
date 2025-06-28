@@ -1,3 +1,5 @@
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -487,17 +489,22 @@ Format your response as a structured evaluation report.`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black transition-all duration-300 relative overflow-hidden space-scrollbar">
-      {/* Animated background stars */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-60"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-star-twinkle-delayed opacity-80"></div>
-        <div className="absolute top-60 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-star-twinkle opacity-70"></div>
-        <div className="absolute top-80 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-star-twinkle-delayed opacity-90"></div>
-        <div className="absolute top-96 left-1/2 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-50"></div>
-      </div>
+    <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8 relative z-10">
+      
+      {/* Address Bar */}
+      <div className="bg-muted/50 border-b border-border">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="bg-background border border-border rounded px-3 py-1 flex items-center space-x-2 flex-1 max-w-md">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="font-mono">https://eduai.lovable.app/interview</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-4">
@@ -948,7 +955,7 @@ Format your response as a structured evaluation report.`;
             </>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 };

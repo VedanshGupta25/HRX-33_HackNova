@@ -1,3 +1,4 @@
+
 export interface TaskClassificationResult {
   isCodeRelated: boolean;
   confidence: number;
@@ -7,7 +8,7 @@ export interface TaskClassificationResult {
 
 export class GeminiTaskClassifier {
   private static cache = new Map<string, TaskClassificationResult>();
-  private static readonly GEMINI_API_KEY = 'AIzaSyCrpNKMFmfrPkGmqij4_VZZS_3wSGe8k5o';
+  private static readonly GEMINI_API_KEY = 'AIzaSyAE5FLtFYjCFLHonUVoHY9htSY5AucS48U';
   private static readonly GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
   static async classifyTask(

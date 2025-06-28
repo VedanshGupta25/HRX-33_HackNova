@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,8 +14,7 @@ import {
   MessageCircle,
   LogIn,
   LogOut,
-  Briefcase,
-  Rocket
+  Briefcase
 } from 'lucide-react';
 
 export const Header = () => {
@@ -28,25 +28,21 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-black/20 backdrop-blur-md border-b border-purple-500/30 sticky top-0 z-40 shadow-lg transition-colors duration-300">
+    <header className="bg-background/90 backdrop-blur-sm border-b border-border sticky top-0 z-40 shadow-sm transition-colors duration-300">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-              <Rocket className="h-5 w-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">LearnAI</span>
+            <span className="text-xl font-bold text-foreground">EduAI</span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-1">
             <Link to="/tasks">
               <Button 
                 variant={isActive('/tasks') ? "default" : "ghost"}
-                className={`flex items-center space-x-2 ${
-                  isActive('/tasks') 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                }`}
+                className="flex items-center space-x-2"
               >
                 <BookOpen className="h-4 w-4" />
                 <span>Tasks</span>
@@ -56,11 +52,7 @@ export const Header = () => {
             <Link to="/achievements">
               <Button 
                 variant={isActive('/achievements') ? "default" : "ghost"}
-                className={`flex items-center space-x-2 ${
-                  isActive('/achievements') 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                }`}
+                className="flex items-center space-x-2"
               >
                 <Trophy className="h-4 w-4" />
                 <span>Achievements</span>
@@ -70,11 +62,7 @@ export const Header = () => {
             <Link to="/collaborate">
               <Button 
                 variant={isActive('/collaborate') ? "default" : "ghost"}
-                className={`flex items-center space-x-2 ${
-                  isActive('/collaborate') 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                }`}
+                className="flex items-center space-x-2"
               >
                 <Users className="h-4 w-4" />
                 <span>Collaborate</span>
@@ -84,11 +72,7 @@ export const Header = () => {
             <Link to="/chat">
               <Button 
                 variant={isActive('/chat') ? "default" : "ghost"}
-                className={`flex items-center space-x-2 relative ${
-                  isActive('/chat') 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                }`}
+                className="flex items-center space-x-2 relative"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span>AI Chat</span>
@@ -99,11 +83,7 @@ export const Header = () => {
             <Link to="/interview">
               <Button 
                 variant={isActive('/interview') ? "default" : "ghost"}
-                className={`flex items-center space-x-2 relative ${
-                  isActive('/interview') 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                }`}
+                className="flex items-center space-x-2 relative"
               >
                 <Briefcase className="h-4 w-4" />
                 <span>Interview</span>
@@ -114,11 +94,7 @@ export const Header = () => {
             <Link to="/help">
               <Button 
                 variant={isActive('/help') ? "default" : "ghost"}
-                className={`flex items-center space-x-2 ${
-                  isActive('/help') 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                }`}
+                className="flex items-center space-x-2"
               >
                 <HelpCircle className="h-4 w-4" />
                 <span>Help</span>
@@ -137,11 +113,7 @@ export const Header = () => {
                       <Button 
                         variant={isActive('/profile') ? "default" : "ghost"}
                         size="sm"
-                        className={`flex items-center space-x-2 ${
-                          isActive('/profile') 
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                            : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                        }`}
+                        className="flex items-center space-x-2"
                       >
                         <User className="h-4 w-4" />
                         <span className="hidden sm:inline">
@@ -154,7 +126,7 @@ export const Header = () => {
                       variant="outline"
                       size="sm"
                       onClick={handleSignOut}
-                      className="flex items-center space-x-2 border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white"
+                      className="flex items-center space-x-2"
                     >
                       <LogOut className="h-4 w-4" />
                       <span>Sign Out</span>
@@ -165,7 +137,7 @@ export const Header = () => {
                     <Button 
                       variant="outline"
                       size="sm"
-                      className="flex items-center space-x-2 border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white"
+                      className="flex items-center space-x-2"
                     >
                       <LogIn className="h-4 w-4" />
                       <span>Sign In</span>

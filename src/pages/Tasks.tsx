@@ -275,19 +275,10 @@ const Tasks = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black transition-all duration-500 ease-in-out relative overflow-hidden space-scrollbar">
-      {/* Animated background stars */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-60"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-star-twinkle-delayed opacity-80"></div>
-        <div className="absolute top-60 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-star-twinkle opacity-70"></div>
-        <div className="absolute top-80 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-star-twinkle-delayed opacity-90"></div>
-        <div className="absolute top-96 left-1/2 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-50"></div>
-      </div>
-      
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500 ease-in-out">
       <Header />
       
-      <main className="container mx-auto px-4 py-8 relative z-10">
+      <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Learning Guide Button */}
           <div className="flex justify-end gap-2 mb-4">
@@ -295,7 +286,7 @@ const Tasks = () => {
               onClick={() => setShowGuide(true)}
               variant="outline"
               size="sm"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-purple-500/50 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl animate-cosmic-glow"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-none transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl dark:shadow-purple-900/20"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Learning Guide</span>
@@ -310,10 +301,10 @@ const Tasks = () => {
           />
 
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl font-bold text-white mb-4 transition-colors duration-300">
+            <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 transition-colors duration-300">
               Learning Tasks
             </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto transition-colors duration-300">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto transition-colors duration-300">
               Generate personalized learning tasks and earn rewards for your progress
             </p>
           </div>
