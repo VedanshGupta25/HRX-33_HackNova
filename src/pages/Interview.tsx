@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -334,7 +333,7 @@ Begin by introducing yourself and asking your first conceptual question about th
 
     try {
       const conversationHistory = updatedSession.messages.map(msg => ({
-        role: msg.role === 'interviewer' ? 'model' : 'user',
+        role: msg.role === 'interviewer' ? 'model' as const : 'user' as const,
         parts: [{ text: msg.content }]
       }));
 
