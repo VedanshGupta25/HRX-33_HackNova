@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, Mail, Lock, Github, Chrome, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const SignIn = () => {
   const { toast } = useToast();
@@ -17,49 +18,85 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // Check if user is already logged in
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        navigate('/');
+      }
+    });
+
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Mock authentication - replace with your preferred auth solution
-    setTimeout(() => {
-      if (email && password) {
-        // Store mock user session
-        localStorage.setItem('user', JSON.stringify({ email, name: email.split('@')[0] }));
-        toast({
-          title: "Welcome back!",
-          description: "Sign in successful",
-        });
-        navigate('/');
-      } else {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Sign In Failed",
-          description: "Please enter both email and password",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else if (data.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
+        // Navigation will be handled by onAuthStateChange
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialSignIn = async (provider: 'google' | 'github' | 'facebook') => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        console.error('Social auth error:', error);
+        toast({
+          title: "Authentication Error",
+          description: error.message,
           variant: "destructive",
         });
       }
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleSocialSignIn = async (provider: string) => {
-    setIsLoading(true);
-    
-    // Mock social authentication
-    setTimeout(() => {
-      const mockUser = {
-        email: `user@${provider.toLowerCase()}.com`,
-        name: `${provider} User`
-      };
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
+    } catch (error) {
+      console.error('Social auth unexpected error:', error);
       toast({
-        title: "Welcome!",
-        description: `Signed in with ${provider} successfully`,
+        title: "Authentication Error",
+        description: "Failed to authenticate with the selected provider.",
+        variant: "destructive",
       });
-      navigate('/');
-      setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -80,30 +117,27 @@ const SignIn = () => {
               {/* Social Sign In Buttons */}
               <div className="space-y-3">
                 <Button 
-                  onClick={() => handleSocialSignIn('Google')}
+                  onClick={() => handleSocialSignIn('google')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-red-50 hover:border-red-300 border-gray-300"
-                  disabled={isLoading}
                 >
                   <Chrome className="h-5 w-5 text-red-500" />
                   Continue with Google
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignIn('GitHub')}
+                  onClick={() => handleSocialSignIn('github')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-gray-50 hover:border-gray-400 border-gray-300"
-                  disabled={isLoading}
                 >
                   <Github className="h-5 w-5" />
                   Continue with GitHub
                 </Button>
                 
                 <Button 
-                  onClick={() => handleSocialSignIn('Facebook')}
+                  onClick={() => handleSocialSignIn('facebook')}
                   variant="outline" 
                   className="w-full flex items-center gap-3 hover:bg-blue-50 hover:border-blue-300 border-gray-300"
-                  disabled={isLoading}
                 >
                   <Facebook className="h-5 w-5 text-blue-600" />
                   Continue with Facebook
