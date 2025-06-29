@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,14 +16,14 @@ import {
   LogOut,
   Briefcase,
   Rocket,
-  BarChart3
+  BarChart3,
+  Shield
 } from 'lucide-react';
 
 export const Header = () => {
   const location = useLocation();
   const { user, profile, signOut, loading } = useAuth();
   
-  // Debug log for authentication state
   console.log('Header Auth State:', { loading, user, profile });
 
   const isActive = (path: string) => location.pathname === path;
@@ -83,6 +84,21 @@ export const Header = () => {
                 <BarChart3 className="h-4 w-4" />
                 <span>Analytics</span>
                 <Badge className="bg-purple-500 text-white ml-1 animate-pulse">New</Badge>
+              </Button>
+            </Link>
+
+            <Link to="/parent-dashboard">
+              <Button 
+                variant={isActive('/parent-dashboard') ? "default" : "ghost"}
+                className={`flex items-center space-x-2 relative ${
+                  isActive('/parent-dashboard') 
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
+                }`}
+              >
+                <Shield className="h-4 w-4" />
+                <span>Parent Dashboard</span>
+                <Badge className="bg-green-500 text-white ml-1 animate-pulse">New</Badge>
               </Button>
             </Link>
             

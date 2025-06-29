@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -13,6 +14,7 @@ import HelpSupport from '@/pages/HelpSupport';
 import ChatSupport from '@/pages/ChatSupport';
 import Interview from '@/pages/Interview';
 import Analytics from '@/pages/Analytics';
+import ParentDashboard from '@/pages/ParentDashboard';
 import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
@@ -38,6 +40,7 @@ function App() {
                 <Route path="/chat" element={<ChatSupport />} />
                 <Route path="/interview" element={<Interview />} />
                 <Route path="/analytics" element={<Analytics />} />
+                <Route path="/parent-dashboard" element={<ParentDashboard />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="*" element={<NotFound />} />

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,10 +13,10 @@ import {
   Zap,
   Award
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface PerformanceData {
-  weeklyProgress: Array<{ day: string; xp: number; tasks: number }>;
+  weeklyProgress: Array<{ day: string; xp: number; tasks: number; studyMinutes?: number }>;
   subjectBreakdown: Array<{ subject: string; hours: number; color: string }>;
   streakData: {
     current: number;
@@ -35,6 +36,8 @@ interface PerformanceAnalyticsProps {
 }
 
 export const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ data }) => {
+  console.log('PerformanceAnalytics data:', data);
+
   const getTrendIcon = (current: number, previous: number) => {
     if (current > previous) {
       return <TrendingUp className="h-4 w-4 text-green-600" />;
@@ -57,6 +60,21 @@ export const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ data
     if (score >= 60) return { label: 'Fair', color: 'bg-orange-100 text-orange-800' };
     return { label: 'Needs Work', color: 'bg-red-100 text-red-800' };
   };
+
+  // Ensure we have valid data for charts
+  const chartData = data.weeklyProgress && data.weeklyProgress.length > 0 ? data.weeklyProgress : [
+    { day: 'Mon', xp: 0, tasks: 0, studyMinutes: 0 },
+    { day: 'Tue', xp: 0, tasks: 0, studyMinutes: 0 },
+    { day: 'Wed', xp: 0, tasks: 0, studyMinutes: 0 },
+    { day: 'Thu', xp: 0, tasks: 0, studyMinutes: 0 },
+    { day: 'Fri', xp: 0, tasks: 0, studyMinutes: 0 },
+    { day: 'Sat', xp: 0, tasks: 0, studyMinutes: 0 },
+    { day: 'Sun', xp: 0, tasks: 0, studyMinutes: 0 }
+  ];
+
+  const pieData = data.subjectBreakdown && data.subjectBreakdown.length > 0 ? data.subjectBreakdown : [
+    { subject: 'General', hours: 1, color: '#3b82f6' }
+  ];
 
   return (
     <div className="space-y-6">
@@ -143,17 +161,29 @@ export const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ data
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={data.weeklyProgress}>
+              <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="day" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value, name) => [value, name === 'xp' ? 'XP Earned' : 'Tasks Completed']}
+                  labelFormatter={(label) => `Day: ${label}`}
+                />
                 <Line 
                   type="monotone" 
                   dataKey="xp" 
                   stroke="#3b82f6" 
                   strokeWidth={3}
                   dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  name="XP"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="tasks" 
+                  stroke="#10b981" 
+                  strokeWidth={2}
+                  dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
+                  name="Tasks"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -175,7 +205,7 @@ export const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ data
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
-                  data={data.subjectBreakdown}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -183,15 +213,15 @@ export const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ data
                   paddingAngle={5}
                   dataKey="hours"
                 >
-                  {data.subjectBreakdown.map((entry, index) => (
+                  {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => [`${value}h`, 'Hours Studied']} />
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 space-y-2">
-              {data.subjectBreakdown.map((subject, index) => (
+              {pieData.map((subject, index) => (
                 <div key={index} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div 
@@ -257,10 +287,10 @@ export const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ data
               <div className="p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-medium text-blue-800 mb-2">This Week's Highlights</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Completed 12 learning tasks</li>
-                  <li>• Maintained 5-day streak</li>
+                  <li>• Completed {chartData.reduce((sum, day) => sum + day.tasks, 0)} learning tasks</li>
+                  <li>• Maintained {data.streakData.current}-day streak</li>
                   <li>• Improved focus score by 15%</li>
-                  <li>• Spent 8.5 hours learning</li>
+                  <li>• Spent {data.learningStats.totalHours} hours learning</li>
                 </ul>
               </div>
 
