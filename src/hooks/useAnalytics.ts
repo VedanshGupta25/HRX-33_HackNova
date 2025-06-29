@@ -51,10 +51,15 @@ export const useAnalytics = () => {
   const { user } = useAuth();
 
   // Fetch study sessions
-  const { data: studySessions, isLoading: sessionsLoading } = useQuery({
+  const { data: studySessions, isLoading: sessionsLoading, error: sessionsError } = useQuery({
     queryKey: ['study-sessions', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        console.log('No user found for study sessions query');
+        return [];
+      }
+      
+      console.log('Fetching study sessions for user:', user.id);
       const { data, error } = await supabase
         .from('study_sessions')
         .select('*')
@@ -62,17 +67,28 @@ export const useAnalytics = () => {
         .order('started_at', { ascending: false })
         .limit(50);
       
-      if (error) throw error;
-      return data as StudySession[];
+      if (error) {
+        console.error('Error fetching study sessions:', error);
+        // Don't throw error, return empty array to prevent app crash
+        return [];
+      }
+      
+      console.log('Study sessions fetched:', data?.length || 0);
+      return data as StudySession[] || [];
     },
     enabled: !!user,
   });
 
   // Fetch task completions
-  const { data: taskCompletions, isLoading: tasksLoading } = useQuery({
+  const { data: taskCompletions, isLoading: tasksLoading, error: tasksError } = useQuery({
     queryKey: ['task-completions', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        console.log('No user found for task completions query');
+        return [];
+      }
+      
+      console.log('Fetching task completions for user:', user.id);
       const { data, error } = await supabase
         .from('task_completions')
         .select('*')
@@ -80,17 +96,28 @@ export const useAnalytics = () => {
         .order('completed_at', { ascending: false })
         .limit(50);
       
-      if (error) throw error;
-      return data as TaskCompletion[];
+      if (error) {
+        console.error('Error fetching task completions:', error);
+        // Don't throw error, return empty array to prevent app crash
+        return [];
+      }
+      
+      console.log('Task completions fetched:', data?.length || 0);
+      return data as TaskCompletion[] || [];
     },
     enabled: !!user,
   });
 
   // Fetch user performance
-  const { data: userPerformance, isLoading: performanceLoading } = useQuery({
+  const { data: userPerformance, isLoading: performanceLoading, error: performanceError } = useQuery({
     queryKey: ['user-performance', user?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user) {
+        console.log('No user found for user performance query');
+        return null;
+      }
+      
+      console.log('Fetching user performance for user:', user.id);
       const { data, error } = await supabase
         .from('user_performance')
         .select('*')
@@ -99,25 +126,42 @@ export const useAnalytics = () => {
         .limit(1)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user performance:', error);
+        // Don't throw error, return null to prevent app crash
+        return null;
+      }
+      
+      console.log('User performance fetched:', !!data);
       return data as UserPerformance | null;
     },
     enabled: !!user,
   });
 
   // Fetch learning paths
-  const { data: learningPaths, isLoading: pathsLoading } = useQuery({
+  const { data: learningPaths, isLoading: pathsLoading, error: pathsError } = useQuery({
     queryKey: ['learning-paths', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        console.log('No user found for learning paths query');
+        return [];
+      }
+      
+      console.log('Fetching learning paths for user:', user.id);
       const { data, error } = await supabase
         .from('user_learning_paths')
         .select('*')
         .eq('user_id', user.id)
         .order('last_activity', { ascending: false });
       
-      if (error) throw error;
-      return data as LearningPath[];
+      if (error) {
+        console.error('Error fetching learning paths:', error);
+        // Don't throw error, return empty array to prevent app crash
+        return [];
+      }
+      
+      console.log('Learning paths fetched:', data?.length || 0);
+      return data as LearningPath[] || [];
     },
     enabled: !!user,
   });
@@ -129,8 +173,12 @@ export const useAnalytics = () => {
     subject?: string;
     focusScore?: number;
   }) => {
-    if (!user) return;
+    if (!user) {
+      console.error('No user found for recording study session');
+      throw new Error('User not authenticated');
+    }
     
+    console.log('Recording study session:', sessionData);
     const { error } = await supabase
       .from('study_sessions')
       .insert({
@@ -146,6 +194,8 @@ export const useAnalytics = () => {
       console.error('Error recording study session:', error);
       throw error;
     }
+    
+    console.log('Study session recorded successfully');
   };
 
   // Function to record task completion
@@ -157,8 +207,12 @@ export const useAnalytics = () => {
     xpEarned?: number;
     completionTimeMinutes?: number;
   }) => {
-    if (!user) return;
+    if (!user) {
+      console.error('No user found for recording task completion');
+      throw new Error('User not authenticated');
+    }
     
+    console.log('Recording task completion:', taskData);
     const { error } = await supabase
       .from('task_completions')
       .insert({
@@ -175,11 +229,16 @@ export const useAnalytics = () => {
       console.error('Error recording task completion:', error);
       throw error;
     }
+    
+    console.log('Task completion recorded successfully');
   };
 
   // Transform data for charts
   const getWeeklyProgressData = () => {
-    if (!studySessions) return [];
+    if (!studySessions || studySessions.length === 0) {
+      console.log('No study sessions data available for weekly progress');
+      return [];
+    }
     
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
@@ -209,13 +268,16 @@ export const useAnalytics = () => {
   };
 
   const getSubjectBreakdown = () => {
-    if (!studySessions && !taskCompletions) return [];
+    if (!studySessions || studySessions.length === 0) {
+      console.log('No study sessions data available for subject breakdown');
+      return [];
+    }
     
     const subjectHours: { [key: string]: number } = {};
     const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
     
     // Count study session hours by subject
-    studySessions?.forEach(session => {
+    studySessions.forEach(session => {
       const subject = session.subject || 'General';
       const hours = session.duration_minutes / 60;
       subjectHours[subject] = (subjectHours[subject] || 0) + hours;
@@ -256,11 +318,19 @@ export const useAnalytics = () => {
 
   const isLoading = sessionsLoading || tasksLoading || performanceLoading || pathsLoading;
 
+  // Log any errors
+  React.useEffect(() => {
+    if (sessionsError) console.error('Study sessions error:', sessionsError);
+    if (tasksError) console.error('Task completions error:', tasksError);
+    if (performanceError) console.error('User performance error:', performanceError);
+    if (pathsError) console.error('Learning paths error:', pathsError);
+  }, [sessionsError, tasksError, performanceError, pathsError]);
+
   return {
-    studySessions,
-    taskCompletions,
+    studySessions: studySessions || [],
+    taskCompletions: taskCompletions || [],
     userPerformance,
-    learningPaths,
+    learningPaths: learningPaths || [],
     isLoading,
     recordStudySession,
     recordTaskCompletion,

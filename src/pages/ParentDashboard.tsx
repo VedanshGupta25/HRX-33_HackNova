@@ -13,28 +13,60 @@ import {
   Clock,
   Target,
   Brain,
-  Star,
   TrendingUp,
   Settings,
   MessageCircle,
   Bell,
-  PlayCircle
+  PlayCircle,
+  Loader2,
+  LogIn
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const ParentDashboard = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, profile, loading: authLoading } = useAuth();
 
-  if (!user) {
+  React.useEffect(() => {
+    console.log('Parent Dashboard - Auth state:', { user: !!user, profile, authLoading });
+  }, [user, profile, authLoading]);
+
+  const handleSignInRedirect = () => {
+    navigate('/signin');
+  };
+
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-white text-xl mb-4">Please sign in to access Parent Dashboard</div>
-          <Button onClick={() => window.location.href = '/signin'}>
-            Sign In
-          </Button>
+          <Loader2 className="h-12 w-12 animate-spin text-white mx-auto mb-4" />
+          <p className="text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <Card className="bg-black/30 backdrop-blur-md border-purple-500/30 shadow-lg max-w-md mx-4">
+            <CardContent className="p-8 text-center">
+              <Users className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-4">Parent Dashboard</h2>
+              <p className="text-gray-300 mb-6">
+                Sign in to monitor your child's learning progress, set goals, and provide support for their educational journey.
+              </p>
+              <Button onClick={handleSignInRedirect} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign In to Continue
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -61,18 +93,46 @@ const ParentDashboard = () => {
     });
   };
 
-  // Mock data for parent dashboard
+  const handleScheduleLearning = () => {
+    toast({
+      title: "Learning Scheduled! 📅",
+      description: "Study session has been scheduled successfully.",
+    });
+  };
+
+  const handleSetGoals = () => {
+    toast({
+      title: "Goals Updated! 🎯",
+      description: "Learning goals have been set for this week.",
+    });
+  };
+
+  const handleNotifications = () => {
+    toast({
+      title: "Notifications Configured! 🔔",
+      description: "You'll receive updates about your child's progress.",
+    });
+  };
+
+  const handleChatWithAI = () => {
+    toast({
+      title: "AI Assistant Ready! 🤖",
+      description: "Starting conversation with your parenting assistant.",
+    });
+  };
+
+  // Mock data for parent dashboard - in real app this would come from API
   const childrenData = [
     {
       id: 1,
-      name: "Alex Johnson",
+      name: profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : "Your Child",
       age: 12,
       currentStreak: 5,
-      totalHours: 24,
+      totalHours: 24.5,
       completedTasks: 18,
       focusScore: 85,
-      subjects: ["Math", "Science", "Programming"],
-      recentAchievements: ["Week Warrior", "Focus Master"]
+      subjects: ["JavaScript", "Math", "Science", "Reading"],
+      recentAchievements: ["Week Warrior", "Focus Master", "Speed Learner"]
     }
   ];
 
@@ -100,8 +160,11 @@ const ParentDashboard = () => {
           <div className="text-center mb-8 animate-fade-in">
             <h1 className="text-4xl font-bold text-white mb-4">Parent Dashboard</h1>
             <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-              Monitor your child's learning progress and provide support
+              Monitor your child's learning progress and provide support for their educational journey
             </p>
+            <div className="text-lg text-purple-300">
+              Welcome back, {profile?.first_name || 'Parent'}! 👋
+            </div>
           </div>
 
           {/* Quick Stats */}
@@ -155,7 +218,7 @@ const ParentDashboard = () => {
                     Children Overview
                   </CardTitle>
                   <CardDescription className="text-purple-200">
-                    Monitor your children's learning progress
+                    Monitor your children's learning progress and achievements
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -164,7 +227,7 @@ const ParentDashboard = () => {
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <h3 className="text-xl font-semibold text-white">{child.name}</h3>
-                          <p className="text-purple-300">Age {child.age} • {child.currentStreak} day streak</p>
+                          <p className="text-purple-300">Age {child.age} • {child.currentStreak} day streak 🔥</p>
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold text-white">{child.totalHours}h</div>
@@ -173,37 +236,37 @@ const ParentDashboard = () => {
                       </div>
 
                       <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="text-center">
+                        <div className="text-center p-3 bg-blue-900/30 rounded-lg">
                           <div className="text-lg font-semibold text-white">{child.completedTasks}</div>
-                          <div className="text-xs text-purple-300">Tasks Done</div>
+                          <div className="text-xs text-blue-300">Tasks Done</div>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center p-3 bg-green-900/30 rounded-lg">
                           <div className="text-lg font-semibold text-white">{child.focusScore}%</div>
-                          <div className="text-xs text-purple-300">Focus Score</div>
+                          <div className="text-xs text-green-300">Focus Score</div>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center p-3 bg-purple-900/30 rounded-lg">
                           <div className="text-lg font-semibold text-white">{child.subjects.length}</div>
-                          <div className="text-xs text-purple-300">Subjects</div>
+                          <div className="text-xs text-purple-300">Active Subjects</div>
                         </div>
                       </div>
 
                       <div className="mb-4">
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-purple-300">Weekly Progress</span>
+                          <span className="text-purple-300">Weekly Progress Goal</span>
                           <span className="text-white">75%</span>
                         </div>
-                        <Progress value={75} className="h-2" />
+                        <Progress value={75} className="h-3 bg-gray-700" />
                       </div>
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         {child.subjects.map((subject, index) => (
-                          <Badge key={index} className="bg-blue-100 text-blue-800">
+                          <Badge key={index} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                             {subject}
                           </Badge>
                         ))}
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button size="sm" onClick={handleViewProgress} className="bg-blue-600 hover:bg-blue-700">
                           <BookOpen className="h-4 w-4 mr-2" />
                           View Progress
@@ -211,6 +274,10 @@ const ParentDashboard = () => {
                         <Button size="sm" variant="outline" onClick={handleSendMessage} className="border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white">
                           <MessageCircle className="h-4 w-4 mr-2" />
                           Send Message
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleStartSession} className="border-green-500/50 text-green-400 hover:bg-green-500 hover:text-white">
+                          <PlayCircle className="h-4 w-4 mr-2" />
+                          Start Session
                         </Button>
                       </div>
                     </div>
@@ -223,37 +290,46 @@ const ParentDashboard = () => {
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Brain className="h-5 w-5" />
-                    Learning Insights
+                    AI Learning Insights
                   </CardTitle>
                   <CardDescription className="text-purple-200">
-                    AI-powered insights about your child's learning patterns
+                    Personalized insights about your child's learning patterns and recommendations
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="p-4 bg-green-900/40 rounded-lg">
-                    <h3 className="font-semibold text-green-400 mb-2">🎯 Strengths Identified</h3>
+                  <div className="p-4 bg-green-900/40 rounded-lg border border-green-500/30">
+                    <h3 className="font-semibold text-green-400 mb-2 flex items-center gap-2">
+                      🎯 Strengths Identified
+                    </h3>
                     <ul className="text-sm text-green-300 space-y-1">
-                      <li>• Excellent focus during morning study sessions</li>
-                      <li>• Strong performance in problem-solving tasks</li>
-                      <li>• Consistent daily learning habit established</li>
+                      <li>• Excellent focus during morning study sessions (9-11 AM)</li>
+                      <li>• Strong performance in problem-solving and logical thinking tasks</li>
+                      <li>• Consistent daily learning habit with {childrenData[0].currentStreak}-day streak</li>
+                      <li>• Shows improvement in JavaScript programming concepts</li>
                     </ul>
                   </div>
                   
-                  <div className="p-4 bg-blue-900/40 rounded-lg">
-                    <h3 className="font-semibold text-blue-400 mb-2">💡 Recommendations</h3>
+                  <div className="p-4 bg-blue-900/40 rounded-lg border border-blue-500/30">
+                    <h3 className="font-semibold text-blue-400 mb-2 flex items-center gap-2">
+                      💡 AI Recommendations
+                    </h3>
                     <ul className="text-sm text-blue-300 space-y-1">
-                      <li>• Consider introducing advanced math concepts</li>
-                      <li>• Schedule 10-minute breaks between sessions</li>
-                      <li>• Reward system for streak milestones</li>
+                      <li>• Consider introducing advanced math concepts to challenge growth</li>
+                      <li>• Schedule 10-minute breaks between 45-minute study sessions</li>
+                      <li>• Implement reward system for reaching streak milestones</li>
+                      <li>• Try collaborative coding projects to enhance social learning</li>
                     </ul>
                   </div>
                   
-                  <div className="p-4 bg-purple-900/40 rounded-lg">
-                    <h3 className="font-semibold text-purple-400 mb-2">📈 Growth Areas</h3>
+                  <div className="p-4 bg-purple-900/40 rounded-lg border border-purple-500/30">
+                    <h3 className="font-semibold text-purple-400 mb-2 flex items-center gap-2">
+                      📈 Growth Opportunities
+                    </h3>
                     <ul className="text-sm text-purple-300 space-y-1">
-                      <li>• Reading comprehension could use more practice</li>
-                      <li>• Try collaborative learning activities</li>
-                      <li>• Introduce creative writing exercises</li>
+                      <li>• Reading comprehension could benefit from daily practice</li>
+                      <li>• Introduce creative writing exercises to boost expression skills</li>
+                      <li>• Consider group learning activities for social skill development</li>
+                      <li>• Add more hands-on science experiments to learning routine</li>
                     </ul>
                   </div>
                 </CardContent>
@@ -262,27 +338,30 @@ const ParentDashboard = () => {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Quick Actions */}
+              {/* Parent Controls */}
               <Card className="bg-black/30 backdrop-blur-md border-purple-500/30 shadow-lg animate-cosmic-glow">
                 <CardHeader>
                   <CardTitle className="text-white">Parent Controls</CardTitle>
+                  <CardDescription className="text-purple-200">
+                    Manage your child's learning experience
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button onClick={handleStartSession} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
                     <PlayCircle className="h-4 w-4 mr-2" />
                     Start Study Session
                   </Button>
-                  <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
+                  <Button onClick={handleScheduleLearning} variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
                     <Calendar className="h-4 w-4 mr-2" />
                     Schedule Learning
                   </Button>
-                  <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Set Goals
+                  <Button onClick={handleSetGoals} variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
+                    <Target className="h-4 w-4 mr-2" />
+                    Set Weekly Goals
                   </Button>
-                  <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
+                  <Button onClick={handleNotifications} variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
                     <Bell className="h-4 w-4 mr-2" />
-                    Notifications
+                    Notification Settings
                   </Button>
                 </CardContent>
               </Card>
@@ -294,41 +373,44 @@ const ParentDashboard = () => {
                     <Trophy className="h-5 w-5" />
                     Recent Achievements
                   </CardTitle>
+                  <CardDescription className="text-purple-200">
+                    Celebrate your child's accomplishments
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-yellow-900/40 rounded-lg">
-                    <div className="w-8 h-8 bg-yellow-600 rounded-full flex items-center justify-center">
+                  <div className="flex items-center gap-3 p-3 bg-yellow-900/40 rounded-lg border border-yellow-500/30">
+                    <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-lg">
                       🏆
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">Week Warrior</div>
-                      <div className="text-xs text-yellow-300">Completed 7 days straight</div>
+                      <div className="text-xs text-yellow-300">Completed 7 days of consistent learning</div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 p-3 bg-blue-900/40 rounded-lg">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <div className="flex items-center gap-3 p-3 bg-blue-900/40 rounded-lg border border-blue-500/30">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-lg">
                       🎯
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">Focus Master</div>
-                      <div className="text-xs text-blue-300">85% average focus score</div>
+                      <div className="text-xs text-blue-300">Maintained 85% average focus score</div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 p-3 bg-purple-900/40 rounded-lg">
-                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                  <div className="flex items-center gap-3 p-3 bg-purple-900/40 rounded-lg border border-purple-500/30">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-lg">
                       ⚡
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">Speed Learner</div>
-                      <div className="text-xs text-purple-300">12 tasks this week</div>
+                      <div className="text-xs text-purple-300">Completed 12 tasks this week</div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* AI Chat for Parents */}
+              {/* AI Parent Assistant */}
               <Card className="bg-black/30 backdrop-blur-md border-purple-500/30 shadow-lg animate-cosmic-glow">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
@@ -336,15 +418,22 @@ const ParentDashboard = () => {
                     AI Parent Assistant
                   </CardTitle>
                   <CardDescription className="text-purple-200">
-                    Get personalized parenting advice
+                    Get personalized parenting advice and support
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="p-3 bg-white/5 rounded-lg text-sm text-gray-300">
-                      "How can I help my child stay motivated?"
+                    <div className="p-3 bg-white/5 rounded-lg text-sm text-gray-300 border border-purple-500/20">
+                      <div className="flex items-start gap-2">
+                        <div className="text-purple-400">💭</div>
+                        <div>
+                          <strong>"How can I help my child stay motivated during challenging topics?"</strong>
+                          <p className="text-xs mt-1 text-gray-400">Example question you can ask</p>
+                        </div>
+                      </div>
                     </div>
-                    <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
+                    <Button onClick={handleChatWithAI} variant="outline" className="w-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-purple-500/50 text-white hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-blue-600/30">
+                      <MessageCircle className="h-4 w-4 mr-2" />
                       Chat with AI Assistant
                     </Button>
                   </div>

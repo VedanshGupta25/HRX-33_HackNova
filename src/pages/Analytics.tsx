@@ -14,54 +14,66 @@ import {
   Download,
   Share2,
   Settings,
-  Loader2
+  Loader2,
+  LogIn
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Analytics = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const {
-    isLoading,
+    isLoading: analyticsLoading,
     recordStudySession,
     recordTaskCompletion,
     getWeeklyProgressData,
     getSubjectBreakdown,
     getPerformanceStats,
-    learningPaths
   } = useAnalytics();
 
-  React.useEffect(() => {
-    if (!user && !isLoading) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to view your analytics.",
-        variant: "destructive",
-      });
-    }
-  }, [user, isLoading, toast]);
+  const isLoading = authLoading || analyticsLoading;
 
-  if (!user) {
+  React.useEffect(() => {
+    console.log('Analytics page - Auth state:', { user: !!user, authLoading });
+  }, [user, authLoading]);
+
+  const handleSignInRedirect = () => {
+    navigate('/signin');
+  };
+
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-white text-xl mb-4">Please sign in to view your analytics</div>
-          <Button onClick={() => window.location.href = '/signin'}>
-            Sign In
-          </Button>
+          <Loader2 className="h-12 w-12 animate-spin text-white mx-auto mb-4" />
+          <p className="text-white">Loading...</p>
         </div>
       </div>
     );
   }
 
-  if (isLoading) {
+  if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-white mx-auto mb-4" />
-          <p className="text-white">Loading your analytics...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <Card className="bg-black/30 backdrop-blur-md border-purple-500/30 shadow-lg max-w-md mx-4">
+            <CardContent className="p-8 text-center">
+              <BarChart3 className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-4">Analytics Dashboard</h2>
+              <p className="text-gray-300 mb-6">
+                Sign in to view your personalized learning analytics, track your progress, and get insights into your learning journey.
+              </p>
+              <Button onClick={handleSignInRedirect} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign In to Continue
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -112,7 +124,7 @@ const Analytics = () => {
     }
   };
 
-  // Mock learning path steps showing completed tasks/projects history
+  // Mock learning path steps
   const learningPathSteps = [
     {
       id: '1',
