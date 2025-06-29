@@ -494,23 +494,31 @@ Format your response as a structured evaluation report.`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black transition-all duration-300 relative overflow-hidden space-scrollbar">
-      {/* Animated background stars */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-60"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-star-twinkle-delayed opacity-80"></div>
-        <div className="absolute top-60 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-star-twinkle opacity-70"></div>
-        <div className="absolute top-80 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-star-twinkle-delayed opacity-90"></div>
-        <div className="absolute top-96 left-1/2 w-2 h-2 bg-white rounded-full animate-star-twinkle opacity-50"></div>
+      {/* Cosmic Starfield Background */}
+      <div className="starfield-bg">
+        {[...Array(80)].map((_, i) => (
+          <div
+            key={i}
+            className="star"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 2 + 1}px`,
+              height: `${Math.random() * 2 + 1}px`,
+              animationDelay: `${Math.random() * 2}s`
+            }}
+          />
+        ))}
       </div>
       <Header />
       <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto">
           {error && (
-            <div className="mb-6 p-4 bg-red-900/80 text-red-200 rounded-lg border border-red-500 animate-pulse text-center font-semibold">
+            <div className="mb-6 p-4 bg-red-900/80 text-red-200 rounded-lg border border-red-500 animate-pulse text-center font-semibold glass-card cosmic-glow">
               {error}
             </div>
           )}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 glass-card cosmic-glow p-8">
             <h1 className="text-4xl font-bold text-foreground mb-4">
               🎯 Technical Interview Practice
             </h1>
@@ -521,7 +529,7 @@ Format your response as a structured evaluation report.`;
 
           {/* Section Navigation */}
           <div className="flex justify-center mb-8">
-            <div className="bg-muted rounded-lg p-1 flex">
+            <div className="bg-muted rounded-lg p-1 flex glass-card">
               <Button
                 variant={activeSection === 'projects' ? 'default' : 'ghost'}
                 size="sm"
@@ -545,7 +553,7 @@ Format your response as a structured evaluation report.`;
 
           {activeSection === 'prep' && (
             <div className="space-y-6">
-              <Card className="border-l-4 border-l-blue-500">
+              <Card className="border-l-4 border-l-blue-500 glass-card cosmic-glow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5" />
@@ -678,14 +686,14 @@ Format your response as a structured evaluation report.`;
             <>
               {!session ? (
                 <div className="space-y-6">
-                  <div className="text-center mb-6">
+                  <div className="text-center mb-6 glass-card cosmic-glow p-6">
                     <h2 className="text-2xl font-semibold mb-2">Select Your Completed Project</h2>
                     <p className="text-muted-foreground">Choose a project you've completed to base your interview on</p>
                   </div>
                   
                   <div className="grid gap-6">
                     {SAMPLE_PROJECTS.map((project) => (
-                      <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-primary" onClick={() => startInterview(project)}>
+                      <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-primary glass-card cosmic-glow" onClick={() => startInterview(project)}>
                         <CardHeader>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -730,7 +738,7 @@ Format your response as a structured evaluation report.`;
               ) : (
                 <div className="space-y-6">
                   {/* Interview Header */}
-                  <Card className="border-l-4 border-l-green-500">
+                  <Card className="border-l-4 border-l-green-500 glass-card cosmic-glow">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div>
@@ -756,7 +764,7 @@ Format your response as a structured evaluation report.`;
                   </Card>
 
                   {/* Chat Interface */}
-                  <Card>
+                  <Card className="glass-card cosmic-glow">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <MessageCircle className="h-5 w-5" />
@@ -765,43 +773,48 @@ Format your response as a structured evaluation report.`;
                     </CardHeader>
                     <CardContent>
                       <ScrollArea className="h-96 w-full pr-4">
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                           {session.messages.map((message, index) => (
-                            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                              <div className={`max-w-[85%] p-4 rounded-lg ${
-                                message.role === 'user' 
-                                  ? 'bg-primary text-primary-foreground ml-4' 
-                                  : 'bg-muted mr-4'
-                              }`}>
-                                <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                                  {message.role === 'user' ? (
-                                    <>
-                                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
-                                        You
-                                      </div>
-                                      Candidate
-                                    </>
-                                  ) : (
-                                    <>
-                                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
-                                        🤖
-                                      </div>
-                                      AI Interviewer
-                                    </>
-                                  )}
+                            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                              <div className={
+                                `max-w-[80%] p-5 rounded-3xl shadow-xl glass-card relative transition-all duration-300 ` +
+                                (message.role === 'user'
+                                  ? 'bg-gradient-to-br from-blue-800/80 to-purple-900/80 text-white ml-4 border-2 border-blue-500/30 cosmic-glow'
+                                  : 'bg-gradient-to-br from-indigo-900/80 to-purple-800/80 text-purple-100 mr-4 border-2 border-purple-500/30 cosmic-glow')
+                              }>
+                                <div className="flex items-center gap-3 mb-2">
+                                  <span className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md border-2 border-white/20">
+                                    {message.role === 'user' ? (
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    ) : (
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2a10 10 0 00-3.516 19.438c.555.102.758-.241.758-.535 0-.264-.01-1.14-.015-2.065-3.088.672-3.74-1.49-3.74-1.49-.504-1.28-1.23-1.622-1.23-1.622-1.006-.688.077-.674.077-.674 1.112.078 1.698 1.142 1.698 1.142.99 1.697 2.595 1.207 3.23.924.1-.717.388-1.207.705-1.485-2.465-.28-5.055-1.232-5.055-5.486 0-1.212.432-2.203 1.142-2.98-.114-.28-.495-1.41.108-2.94 0 0 .93-.298 3.05 1.14A10.68 10.68 0 0112 6.844c.942.004 1.892.127 2.78.373 2.12-1.438 3.05-1.14 3.05-1.14.603 1.53.222 2.66.108 2.94.71.777 1.142 1.768 1.142 2.98 0 4.264-2.593 5.203-5.062 5.478.399.344.753 1.025.753 2.066 0 1.492-.014 2.695-.014 3.062 0 .297.2.642.765.533A10.003 10.003 0 0012 2z" /></svg>
+                                    )}
+                                  </span>
+                                  <span className="font-bold text-base drop-shadow-lg">
+                                    {message.role === 'user' ? 'You' : 'AI Interviewer'}
+                                  </span>
                                 </div>
-                                <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
-                                <div className="text-xs opacity-70 mt-2">
+                                <div className="whitespace-pre-wrap leading-relaxed text-lg font-medium">
+                                  {message.content}
+                                </div>
+                                <div className="text-xs opacity-60 mt-3 text-right">
                                   {message.timestamp.toLocaleTimeString()}
                                 </div>
                               </div>
                             </div>
                           ))}
                           {isLoading && (
-                            <div className="flex justify-start">
-                              <div className="bg-muted p-4 rounded-lg mr-4 flex items-center gap-3">
-                                <LoadingSpinner />
-                                <span className="text-sm">AI Interviewer is thinking...</span>
+                            <div className="flex justify-start animate-fade-in">
+                              <div className="glass-card cosmic-glow bg-gradient-to-br from-indigo-900/80 to-purple-800/80 text-purple-100 mr-4 border-2 border-purple-500/30 max-w-[60%] p-5 rounded-3xl shadow-xl flex items-center gap-3">
+                                <span className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-md border-2 border-white/20">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2a10 10 0 00-3.516 19.438c.555.102.758-.241.758-.535 0-.264-.01-1.14-.015-2.065-3.088.672-3.74-1.49-3.74-1.49-.504-1.28-1.23-1.622-1.23-1.622-1.006-.688.077-.674.077-.674 1.112.078 1.698 1.142 1.698 1.142.99 1.697 2.595 1.207 3.23.924.1-.717.388-1.207.705-1.485-2.465-.28-5.055-1.232-5.055-5.486 0-1.212.432-2.203 1.142-2.98-.114-.28-.495-1.41.108-2.94 0 0 .93-.298 3.05 1.14A10.68 10.68 0 0112 6.844c.942.004 1.892.127 2.78.373 2.12-1.438 3.05-1.14 3.05-1.14.603 1.53.222 2.66.108 2.94.71.777 1.142 1.768 1.142 2.98 0 4.264-2.593 5.203-5.062 5.478.399.344.753 1.025.753 2.066 0 1.492-.014 2.695-.014 3.062 0 .297.2.642.765.533A10.003 10.003 0 0012 2z" /></svg>
+                                </span>
+                                <span className="text-base font-bold">AI Interviewer is typing...</span>
+                                <span className="flex gap-1 ml-2">
+                                  <span className="w-2 h-2 bg-purple-300 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
+                                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                                  <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                                </span>
                               </div>
                             </div>
                           )}
@@ -831,7 +844,7 @@ Format your response as a structured evaluation report.`;
 
                   {/* Coding Challenge */}
                   {session.phase === 'coding' && session.codingChallenge && (
-                    <Card className="border-l-4 border-l-orange-500">
+                    <Card className="border-l-4 border-l-orange-500 glass-card cosmic-glow">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           <Code2 className="h-5 w-5" />
@@ -890,7 +903,7 @@ Format your response as a structured evaluation report.`;
 
                   {/* Final Evaluation */}
                   {session.phase === 'complete' && session.evaluation && (
-                    <Card className="border-l-4 border-l-green-500">
+                    <Card className="border-l-4 border-l-green-500 glass-card cosmic-glow">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           <Trophy className="h-5 w-5" />
