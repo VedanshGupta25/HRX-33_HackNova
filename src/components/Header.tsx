@@ -21,6 +21,9 @@ export const Header = () => {
   const location = useLocation();
   const { user, profile, signOut, loading } = useAuth();
   
+  // Debug log for authentication state
+  console.log('Header Auth State:', { loading, user, profile });
+
   const isActive = (path: string) => location.pathname === path;
 
   const handleSignOut = async () => {
@@ -129,50 +132,46 @@ export const Header = () => {
           <div className="flex items-center space-x-2">
             <ThemeToggle />
             
-            {!loading && (
+            {user ? (
               <>
-                {user ? (
-                  <>
-                    <Link to="/profile">
-                      <Button 
-                        variant={isActive('/profile') ? "default" : "ghost"}
-                        size="sm"
-                        className={`flex items-center space-x-2 ${
-                          isActive('/profile') 
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                            : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
-                        }`}
-                      >
-                        <User className="h-4 w-4" />
-                        <span className="hidden sm:inline">
-                          {profile?.first_name || 'Profile'}
-                        </span>
-                      </Button>
-                    </Link>
-                    
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSignOut}
-                      className="flex items-center space-x-2 border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      <span>Sign Out</span>
-                    </Button>
-                  </>
-                ) : (
-                  <Link to="/signin">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center space-x-2 border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white"
-                    >
-                      <LogIn className="h-4 w-4" />
-                      <span>Sign In</span>
-                    </Button>
-                  </Link>
-                )}
+                <Link to="/profile">
+                  <Button 
+                    variant={isActive('/profile') ? "default" : "ghost"}
+                    size="sm"
+                    className={`flex items-center space-x-2 ${
+                      isActive('/profile') 
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                        : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
+                    }`}
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {profile?.first_name || 'Profile'}
+                    </span>
+                  </Button>
+                </Link>
+                
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="flex items-center space-x-2 border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </Button>
               </>
+            ) : (
+              <Link to="/signin">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-2 border-purple-500/50 text-purple-400 hover:bg-purple-500 hover:text-white"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>Sign In</span>
+                </Button>
+              </Link>
             )}
           </div>
         </div>

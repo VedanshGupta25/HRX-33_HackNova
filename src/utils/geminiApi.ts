@@ -20,7 +20,7 @@ export interface Task {
   showCodePractice?: boolean;
 }
 
-const GEMINI_API_KEY = 'AIzaSyC6wBQhfbeVJ5wfWg6lvXd6-CaEEP7CGvI';
+const GEMINI_API_KEY = 'AIzaSyD1lvOCVqVoImUDrPb6N-SXOhj1CLQj0c0';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 export class GeminiApiService {

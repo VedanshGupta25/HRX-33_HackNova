@@ -286,3 +286,44 @@
 .space-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.8));
 }
+
+/* Cosmic Starfield Background */
+.starfield-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, rgba(80,0,120,0.5) 0%, rgba(20,0,40,0.7) 100%), #0a0020;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  opacity: 0.7;
+  animation: twinkle 2s infinite alternate;
+}
+@keyframes twinkle {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Glassmorphism Utility */
+.glass-card {
+  background: rgba(30, 0, 60, 0.45);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: 1.5rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Cosmic Glow Utility */
+.cosmic-glow {
+  box-shadow: 0 0 16px 4px rgba(168,139,250,0.4), 0 0 32px 8px rgba(99,102,241,0.2);
+  animation: cosmic-glow-pulse 2.5s infinite alternate;
+}
+@keyframes cosmic-glow-pulse {
+  0% { box-shadow: 0 0 16px 4px rgba(168,139,250,0.4), 0 0 32px 8px rgba(99,102,241,0.2); }
+  100% { box-shadow: 0 0 32px 8px rgba(168,139,250,0.7), 0 0 48px 16px rgba(99,102,241,0.3); }
+}
