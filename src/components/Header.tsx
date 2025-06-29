@@ -14,7 +14,8 @@ import {
   LogIn,
   LogOut,
   Briefcase,
-  Rocket
+  Rocket,
+  BarChart3
 } from 'lucide-react';
 
 export const Header = () => {
@@ -67,6 +68,21 @@ export const Header = () => {
               >
                 <Trophy className="h-4 w-4" />
                 <span>Achievements</span>
+              </Button>
+            </Link>
+
+            <Link to="/analytics">
+              <Button 
+                variant={isActive('/analytics') ? "default" : "ghost"}
+                className={`flex items-center space-x-2 relative ${
+                  isActive('/analytics') 
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-purple-500/20'
+                }`}
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span>Analytics</span>
+                <Badge className="bg-purple-500 text-white ml-1 animate-pulse">New</Badge>
               </Button>
             </Link>
             
