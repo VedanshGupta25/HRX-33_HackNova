@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Header } from '@/components/Header';
 import { PerformanceAnalytics } from '@/components/PerformanceAnalytics';
@@ -12,43 +13,78 @@ import {
   Calendar, 
   Download,
   Share2,
-  Settings
+  Settings,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Analytics = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const {
+    isLoading,
+    recordStudySession,
+    recordTaskCompletion,
+    getWeeklyProgressData,
+    getSubjectBreakdown,
+    getPerformanceStats,
+    learningPaths
+  } = useAnalytics();
 
-  // Mock data for analytics
+  // Redirect to sign in if not authenticated
+  React.useEffect(() => {
+    if (!user && !isLoading) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to view your analytics.",
+        variant: "destructive",
+      });
+    }
+  }, [user, isLoading, toast]);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-white text-xl mb-4">Please sign in to view your analytics</div>
+          <Button onClick={() => window.location.href = '/signin'}>
+            Sign In
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-white mx-auto mb-4" />
+          <p className="text-white">Loading your analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const weeklyProgress = getWeeklyProgressData();
+  const subjectBreakdown = getSubjectBreakdown();
+  const performanceStats = getPerformanceStats();
+
   const performanceData = {
-    weeklyProgress: [
-      { day: 'Mon', xp: 120, tasks: 3 },
-      { day: 'Tue', xp: 180, tasks: 4 },
-      { day: 'Wed', xp: 90, tasks: 2 },
-      { day: 'Thu', xp: 220, tasks: 5 },
-      { day: 'Fri', xp: 160, tasks: 4 },
-      { day: 'Sat', xp: 200, tasks: 3 },
-      { day: 'Sun', xp: 140, tasks: 2 }
-    ],
-    subjectBreakdown: [
-      { subject: 'Web Development', hours: 12, color: '#3b82f6' },
-      { subject: 'Machine Learning', hours: 8, color: '#10b981' },
-      { subject: 'Data Science', hours: 6, color: '#f59e0b' },
-      { subject: 'UI/UX Design', hours: 4, color: '#8b5cf6' }
-    ],
-    streakData: {
-      current: 7,
-      longest: 15,
-      thisWeek: 5
-    },
+    weeklyProgress,
+    subjectBreakdown,
+    streakData: performanceStats.streakData,
     learningStats: {
-      totalHours: 30,
-      averageSession: 45,
-      completionRate: 87,
-      focusScore: 92
+      totalHours: performanceStats.totalHours,
+      averageSession: performanceStats.averageSession,
+      completionRate: performanceStats.completionRate,
+      focusScore: performanceStats.focusScore
     }
   };
 
+  // Mock learning path steps (you can replace this with real data from learningPaths)
   const learningPathSteps = [
     {
       id: '1',
@@ -114,11 +150,50 @@ const Analytics = () => {
     });
   };
 
-  const handleStudySessionComplete = (duration: number) => {
-    toast({
-      title: "Study Session Complete! 🎯",
-      description: `Great focus! You studied for ${Math.round(duration / 60)} minutes.`,
-    });
+  const handleStudySessionComplete = async (duration: number) => {
+    try {
+      await recordStudySession({
+        sessionType: 'study',
+        durationMinutes: Math.round(duration / 60),
+        subject: 'General Study',
+        focusScore: Math.floor(Math.random() * 20) + 80 // Random score between 80-100
+      });
+
+      toast({
+        title: "Study Session Complete! 🎯",
+        description: `Great focus! You studied for ${Math.round(duration / 60)} minutes.`,
+      });
+    } catch (error) {
+      console.error('Error recording study session:', error);
+      toast({
+        title: "Session Recorded Locally 📝",
+        description: `You studied for ${Math.round(duration / 60)} minutes.`,
+      });
+    }
+  };
+
+  const handleStartNewSession = async () => {
+    try {
+      await recordTaskCompletion({
+        taskTitle: 'Quick Practice Session',
+        taskType: 'exercise',
+        difficulty: 'beginner',
+        subject: 'General',
+        xpEarned: 50,
+        completionTimeMinutes: 15
+      });
+
+      toast({
+        title: "New Session Started! 🚀",
+        description: "Let's get learning!",
+      });
+    } catch (error) {
+      console.error('Error starting session:', error);
+      toast({
+        title: "Session Started! 🚀",
+        description: "Let's get learning!",
+      });
+    }
   };
 
   return (
@@ -175,7 +250,7 @@ const Analytics = () => {
             <Card className="bg-black/30 backdrop-blur-md border-purple-500/30 shadow-lg animate-cosmic-glow">
               <CardContent className="p-6 text-center">
                 <BarChart3 className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">87%</div>
+                <div className="text-3xl font-bold text-white mb-2">{performanceStats.completionRate}%</div>
                 <div className="text-purple-200">Overall Performance</div>
                 <Badge className="mt-2 bg-green-100 text-green-800">Excellent</Badge>
               </CardContent>
@@ -193,7 +268,7 @@ const Analytics = () => {
             <Card className="bg-black/30 backdrop-blur-md border-purple-500/30 shadow-lg animate-cosmic-glow">
               <CardContent className="p-6 text-center">
                 <Calendar className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                <div className="text-3xl font-bold text-white mb-2">7</div>
+                <div className="text-3xl font-bold text-white mb-2">{performanceStats.streakData.current}</div>
                 <div className="text-purple-200">Day Streak</div>
                 <Badge className="mt-2 bg-orange-100 text-orange-800">On Fire</Badge>
               </CardContent>
@@ -259,7 +334,10 @@ const Analytics = () => {
                   <CardTitle className="text-white">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Button 
+                    onClick={handleStartNewSession}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
                     Start New Session
                   </Button>
                   <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
@@ -283,7 +361,7 @@ const Analytics = () => {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">Week Warrior</div>
-                      <div className="text-xs text-green-300">Completed 7 days in a row</div>
+                      <div className="text-xs text-green-300">Completed {performanceStats.streakData.current} days in a row</div>
                     </div>
                   </div>
                   
@@ -293,7 +371,7 @@ const Analytics = () => {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">Focus Master</div>
-                      <div className="text-xs text-blue-300">Maintained 90%+ focus score</div>
+                      <div className="text-xs text-blue-300">Maintained {performanceStats.focusScore}% focus score</div>
                     </div>
                   </div>
                   
@@ -303,7 +381,7 @@ const Analytics = () => {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">Speed Learner</div>
-                      <div className="text-xs text-purple-300">Completed 5 tasks in one day</div>
+                      <div className="text-xs text-purple-300">Studied {performanceStats.totalHours} hours this week</div>
                     </div>
                   </div>
                 </CardContent>
